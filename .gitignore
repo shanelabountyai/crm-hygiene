@@ -1,0 +1,4 @@
+.env
+.env*.local
+hubspot.config.yml
+eval-out/
