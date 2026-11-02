@@ -1,0 +1,7 @@
+[
+  {"key": "free_mail_domains", "value": "gmail.example.com|yahoo.example.com"},
+  {"key": "dot_insensitive_domains", "value": "gmail.example.com"},
+  {"key": "shared_inbox_locals", "value": "info|sales|hello"},
+  {"key": "company_suffixes", "value": "inc|llc|llp|ltd|co|corp|corporation|company"},
+  {"key": "lifecycle_order", "value": "subscriber|lead|marketingqualifiedlead|salesqualifiedlead|opportunity|customer|evangelist|other"}
+]

@@ -1,0 +1,9 @@
+[
+  {"stage": "appointmentscheduled", "max_idle_days": 14, "closed": "false"},
+  {"stage": "qualifiedtobuy", "max_idle_days": 21, "closed": "false"},
+  {"stage": "presentationscheduled", "max_idle_days": 14, "closed": "false"},
+  {"stage": "decisionmakerboughtin", "max_idle_days": 21, "closed": "false"},
+  {"stage": "contractsent", "max_idle_days": 10, "closed": "false"},
+  {"stage": "closedwon", "max_idle_days": "", "closed": "true"},
+  {"stage": "closedlost", "max_idle_days": "", "closed": "true"}
+]

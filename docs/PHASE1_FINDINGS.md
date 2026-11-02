@@ -34,3 +34,12 @@ Two traps from the run:
 
 - The N1 service key (HubSpot name `labintelligence`, id 55871605; n8n credential `HubSpot Service Key account`) had no deal scopes. `crm.objects.deals.read` and `crm.objects.deals.write` were added 2026-11-02. N1's SETUP.md lists the old scope set.
 - `n8n execute` parks any Wait node over 65 s until a server resumes it, so the CLI run stops there and skips every node after it. Keep CLI waits at 60 s or less.
+
+## Fixtures (`fixtures/build.py`, 2026-11-02)
+
+167 contacts, 12 deals, 80 labelled pairs (60 tuned, 20 held-out), 58 expected proposals. Rules live in `rules/` (`match`, `nicknames`, `required_fields`, `stale`). The builder runs the detectors in Python over every seeded record and refuses to write the file if a sure-tier pair is labelled as two different people, or if two records from different cases would match each other.
+
+- **Company name is a fourth blocking key.** The PRD named last name, phone and email domain. A first name plus company name match (Laura Kim / Laura Benson, both at Pinecrest Dental) tiers as borderline but shares none of those keys, so the detector would never compare the pair. The builder asserts that every tiered pair shares a blocking key.
+- **The PRD's "same name, different company, different phone" row is not a candidate.** It has no second signal under the rule table, so it gets no proposal. That is still the right outcome, because the label is "different people".
+- **Five tuned pairs depend on HubSpot accepting a second contact whose email matches one already stored**, ignoring case: the case-variant pairs and the shared `info@`/`sales@`/`hello@` inboxes (`seed_check: hubspot_email_unique`). If the seed step gets a 409, drop those pairs by a recorded decision. None of the held-out pairs depend on this.
+- **Expected values that haven't been verified:** when the secondary record has the later lifecycle stage, the expected result follows HubSpot's documented "furthest stage wins" rule. Three merges carry `unverified` until a probe confirms it.

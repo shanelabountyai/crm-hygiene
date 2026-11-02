@@ -1,0 +1,5 @@
+[
+  {"object": "contact", "field": "hubspot_owner_id", "derive": "open_deal_owner"},
+  {"object": "contact", "field": "company", "derive": "associated_company_name"},
+  {"object": "contact", "field": "lifecyclestage", "derive": ""}
+]
