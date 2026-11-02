@@ -1,0 +1,88 @@
+{
+  "id": "n2DevProbeMerge01",
+  "name": "Dev: probe which values survive a contact merge (PRD open question 1)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "nodes": [
+    { "parameters": {}, "name": "Run once", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [0, 0] },
+    {
+      "parameters": {
+        "method": "POST", "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "{\"properties\": {\"email\": \"probe-a@example.com\", \"firstname\": \"Ann\", \"lastname\": \"Probe\", \"phone\": \"555-0101\", \"company\": \"Probe A Co\", \"lifecyclestage\": \"opportunity\", \"lead_score\": \"10\", \"demo_record\": \"true\"}}"
+      },
+      "name": "Create A (older)", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [200, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    { "parameters": { "amount": 3 }, "name": "Gap 1", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [400, 0], "webhookId": "n2-probe-gap-1" },
+    {
+      "parameters": {
+        "method": "POST", "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "{\"properties\": {\"email\": \"probe-b@example.com\", \"firstname\": \"Annie\", \"lastname\": \"Probe\", \"jobtitle\": \"CFO\", \"company\": \"Probe B Co\", \"lifecyclestage\": \"lead\", \"lead_score\": \"40\", \"demo_record\": \"true\"}}"
+      },
+      "name": "Create B (newer)", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [600, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    { "parameters": { "amount": 3 }, "name": "Gap 2", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [800, 0], "webhookId": "n2-probe-gap-2" },
+    {
+      "parameters": {
+        "method": "PATCH", "url": "=https://api.hubapi.com/crm/v3/objects/contacts/{{ $('Create A (older)').first().json.id }}",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "{\"properties\": {\"company\": \"Probe A Co (edited last)\"}}"
+      },
+      "name": "Edit A's company last", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1000, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "method": "POST", "url": "https://api.hubapi.com/crm/v3/objects/contacts/merge",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ primaryObjectId: $('Create A (older)').first().json.id, objectIdToMerge: $('Create B (newer)').first().json.id }) }}"
+      },
+      "name": "Merge B into A", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1200, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    { "parameters": { "amount": 10 }, "name": "Settle", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [1400, 0], "webhookId": "n2-probe-settle" },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/objects/contacts/{{ $('Merge B into A').first().json.id }}?properties=email,firstname,lastname,phone,jobtitle,company,lifecyclestage,lead_score,hs_additional_emails,hs_merged_object_ids,createdate,demo_record&propertiesWithHistory=firstname,company,lifecyclestage,lead_score,email",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken"
+      },
+      "name": "Read merged", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1600, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/objects/contacts/{{ $('Create B (newer)').first().json.id }}?properties=email",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "options": { "response": { "response": { "fullResponse": true, "neverError": true } } }
+      },
+      "name": "Read B's old id", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1800, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { a_id: $('Create A (older)').first().json.id, b_id: $('Create B (newer)').first().json.id, merge_response_id: $('Merge B into A').first().json.id, merged: $('Read merged').first().json, b_old_id: $('Read B\\'s old id').first().json } }];"
+      },
+      "name": "Report", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [2000, 0]
+    }
+  ],
+  "connections": {
+    "Run once": { "main": [[{ "node": "Create A (older)", "type": "main", "index": 0 }]] },
+    "Create A (older)": { "main": [[{ "node": "Gap 1", "type": "main", "index": 0 }]] },
+    "Gap 1": { "main": [[{ "node": "Create B (newer)", "type": "main", "index": 0 }]] },
+    "Create B (newer)": { "main": [[{ "node": "Gap 2", "type": "main", "index": 0 }]] },
+    "Gap 2": { "main": [[{ "node": "Edit A's company last", "type": "main", "index": 0 }]] },
+    "Edit A's company last": { "main": [[{ "node": "Merge B into A", "type": "main", "index": 0 }]] },
+    "Merge B into A": { "main": [[{ "node": "Settle", "type": "main", "index": 0 }]] },
+    "Settle": { "main": [[{ "node": "Read merged", "type": "main", "index": 0 }]] },
+    "Read merged": { "main": [[{ "node": "Read B's old id", "type": "main", "index": 0 }]] },
+    "Read B's old id": { "main": [[{ "node": "Report", "type": "main", "index": 0 }]] }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": "n2DevProbeDeal001",
+  "name": "Dev: probe which deal property API-created notes/tasks fill (PRD open question 2)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "nodes": [
+    { "parameters": {}, "name": "Run once", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [0, 0] },
+    {
+      "parameters": {
+        "method": "POST", "url": "https://api.hubapi.com/crm/v3/objects/deals",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "{\"properties\": {\"dealname\": \"[demo] activity probe\", \"pipeline\": \"default\", \"dealstage\": \"appointmentscheduled\"}}"
+      },
+      "name": "Create deal", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [200, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "method": "POST", "url": "https://api.hubapi.com/crm/v3/objects/notes",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ properties: { hs_note_body: '[demo] probe note, back-dated 60 days', hs_timestamp: '2026-09-03T12:00:00Z' }, associations: [{ to: { id: $('Create deal').first().json.id }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: 214 }] }] }) }}"
+      },
+      "name": "Note at -60d", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [400, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "method": "POST", "url": "https://api.hubapi.com/crm/v3/objects/tasks",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ properties: { hs_task_subject: '[demo] probe task, back-dated 45 days', hs_task_status: 'COMPLETED', hs_timestamp: '2026-09-18T12:00:00Z' }, associations: [{ to: { id: $('Create deal').first().json.id }, types: [{ associationCategory: 'HUBSPOT_DEFINED', associationTypeId: 216 }] }] }) }}"
+      },
+      "name": "Task at -45d", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [600, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    { "parameters": { "amount": 90 }, "name": "Settle", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [800, 0], "webhookId": "n2-probe-deal-settle" },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/objects/deals/{{ $('Create deal').first().json.id }}?properties=createdate,notes_last_updated,notes_last_contacted,num_notes,hs_lastmodifieddate,hs_notes_next_activity",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken"
+      },
+      "name": "Read deal", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1000, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "method": "DELETE", "url": "=https://api.hubapi.com/crm/v3/objects/notes/{{ $('Note at -60d').first().json.id }}",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken"
+      },
+      "name": "Archive note", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1200, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "method": "DELETE", "url": "=https://api.hubapi.com/crm/v3/objects/tasks/{{ $('Task at -45d').first().json.id }}",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken"
+      },
+      "name": "Archive task", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1400, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": {
+        "method": "DELETE", "url": "=https://api.hubapi.com/crm/v3/objects/deals/{{ $('Create deal').first().json.id }}",
+        "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken"
+      },
+      "name": "Archive deal", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [1600, 0],
+      "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
+    },
+    {
+      "parameters": { "jsCode": "return [{ json: { deal: $('Read deal').first().json } }];" },
+      "name": "Report", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [1800, 0]
+    }
+  ],
+  "connections": {
+    "Run once": { "main": [[{ "node": "Create deal", "type": "main", "index": 0 }]] },
+    "Create deal": { "main": [[{ "node": "Note at -60d", "type": "main", "index": 0 }]] },
+    "Note at -60d": { "main": [[{ "node": "Task at -45d", "type": "main", "index": 0 }]] },
+    "Task at -45d": { "main": [[{ "node": "Settle", "type": "main", "index": 0 }]] },
+    "Settle": { "main": [[{ "node": "Read deal", "type": "main", "index": 0 }]] },
+    "Read deal": { "main": [[{ "node": "Archive note", "type": "main", "index": 0 }]] },
+    "Archive note": { "main": [[{ "node": "Archive task", "type": "main", "index": 0 }]] },
+    "Archive task": { "main": [[{ "node": "Archive deal", "type": "main", "index": 0 }]] },
+    "Archive deal": { "main": [[{ "node": "Report", "type": "main", "index": 0 }]] }
+  }
+}
