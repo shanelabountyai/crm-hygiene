@@ -1336,6 +1336,50 @@
       "key": "T120"
     },
     {
+      "firstname": "Walter",
+      "lastname": "Brennan",
+      "email": "walter.brennan@gmail.example.com",
+      "phone": "216-555-0170",
+      "company": "Brennan Hardware",
+      "jobtitle": "",
+      "lifecyclestage": "lead",
+      "hubspot_owner_id": "demo_owner",
+      "key": "T121"
+    },
+    {
+      "firstname": "Walter",
+      "lastname": "Brennan",
+      "email": "wbrennan.jr@yahoo.example.com",
+      "phone": "216-555-0170",
+      "company": "Brennan Hardware",
+      "jobtitle": "",
+      "lifecyclestage": "lead",
+      "hubspot_owner_id": "demo_owner",
+      "key": "T122"
+    },
+    {
+      "firstname": "Linh",
+      "lastname": "Nguyen",
+      "email": "linh@eastgateopt.example.com",
+      "phone": "503-555-0171",
+      "company": "Eastgate Optometry",
+      "jobtitle": "",
+      "lifecyclestage": "lead",
+      "hubspot_owner_id": "demo_owner",
+      "key": "T123"
+    },
+    {
+      "firstname": "Tuan",
+      "lastname": "Nguyen",
+      "email": "tuan@eastgateopt.example.com",
+      "phone": "503-555-0171",
+      "company": "Eastgate Optometry",
+      "jobtitle": "",
+      "lifecyclestage": "lead",
+      "hubspot_owner_id": "demo_owner",
+      "key": "T124"
+    },
+    {
       "firstname": "Corinne",
       "lastname": "Abbott",
       "email": "c.abbott@gmail.example.com",
@@ -3482,6 +3526,36 @@
       "expected": {
         "tier": "none",
         "matched_on": "",
+        "model_called": false,
+        "proposed": false
+      }
+    },
+    {
+      "set": "tuned",
+      "case": "shared_home_phone_family",
+      "a": "T121",
+      "b": "T122",
+      "same_person": false,
+      "note": "Father and son on one home line; Jr. is not in the data. Same name here would be a sure phone+last-name match.",
+      "known_fail": "sure_rule_shared_phone",
+      "expected": {
+        "tier": "sure",
+        "matched_on": "phone_and_last_name",
+        "model_called": false,
+        "proposed": false
+      }
+    },
+    {
+      "set": "tuned",
+      "case": "shared_office_phone_same_last",
+      "a": "T123",
+      "b": "T124",
+      "same_person": false,
+      "note": "Two unrelated Nguyens on one office line.",
+      "known_fail": "sure_rule_shared_phone",
+      "expected": {
+        "tier": "sure",
+        "matched_on": "phone_and_last_name",
         "model_called": false,
         "proposed": false
       }

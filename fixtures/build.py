@@ -18,10 +18,10 @@ def C(first, last, email, phone="", company="", title="", stage="lead", owner=OW
     return dict(firstname=first, lastname=last, email=email, phone=phone, company=company, jobtitle=title, lifecyclestage=stage, hubspot_owner_id=owner, **kw)
 def seed(c, prefix):
     c = dict(c, key=f"{prefix}{sum(x['key'][0] == prefix for x in contacts) + 1:03d}"); contacts.append(c); return c["key"]
-def P(s, case, a, b, same, note=None, merge_case=None, seed_check=None):
+def P(s, case, a, b, same, note=None, merge_case=None, seed_check=None, known_fail=None):
     """a is seeded first, so it is the older record and the merge primary."""
     p = dict(set=s, case=case, a=seed(a, "T" if s == "tuned" else "H"), b=seed(b, "T" if s == "tuned" else "H"), same_person=same)
-    for k, v in dict(note=note, merge_case=merge_case, seed_check=seed_check).items():
+    for k, v in dict(note=note, merge_case=merge_case, seed_check=seed_check, known_fail=known_fail).items():
         if v: p[k] = v
     pairs.append(p)
 EQ = "hubspot_email_unique"  # HubSpot may refuse a second contact whose email matches one already stored. The seed step checks; a refused pair is dropped by a recorded decision.
@@ -107,6 +107,13 @@ P("tuned", "same_domain_unrelated_names", C("Ruth", "Abend", "ruth@kilnworks.exa
 P("tuned", "known_miss_job_change", C("Felicity", "Ward", "fward@oldharbor.example.com", "617-555-0155", "Old Harbor Bank"), C("Felicity", "Ward", "felicity@greywolfcap.example.com", "857-555-0156", "Grey Wolf Capital"), True,
   note="Same person after a job change. No rule signal, so no proposal: a known recall limit, not scored as a miss.")
 P("tuned", "known_miss_name_and_job", C("Nora", "Blake", "nblake@cindertech.example.com", company="Cinder Tech"), C("Nora", "Iverson", "nora@lanternhq.example.com", company="Lantern HQ"), True, note="Known recall limit.")
+
+# ---- tuned: known gate failures (2). Decided 2026-11-02 (Shane): kept failing on purpose until the sure rule also needs a first-name or email match.
+KF = "sure_rule_shared_phone"
+P("tuned", "shared_home_phone_family", C("Walter", "Brennan", f"walter.brennan@{g}", "216-555-0170", "Brennan Hardware"), C("Walter", "Brennan", f"wbrennan.jr@{y}", "216-555-0170", "Brennan Hardware"), False,
+  note="Father and son on one home line; Jr. is not in the data. Same name here would be a sure phone+last-name match.", known_fail=KF)
+P("tuned", "shared_office_phone_same_last", C("Linh", "Nguyen", "linh@eastgateopt.example.com", "503-555-0171", "Eastgate Optometry"), C("Tuan", "Nguyen", "tuan@eastgateopt.example.com", "503-555-0171", "Eastgate Optometry"), False,
+  note="Two unrelated Nguyens on one office line.", known_fail=KF)
 
 # ---- held-out (20). Committed before their first run.
 P("holdout", "gmail_dots", C("Corinne", "Abbott", f"c.abbott@{g}", company="Abbott Pottery"), C("Corinne", "Abbott", f"cabbott@{g}", company="Abbott Pottery"), True)
@@ -216,8 +223,8 @@ proposals = []
 for p in pairs:
     a, b = by[p["a"]], by[p["b"]]
     t, why = found.get((p["a"], p["b"]), ("none", ""))
-    assert not (t == "sure" and not p["same_person"]), f"{p['case']} {p['a']}/{p['b']}: the sure rule would merge two different people"
-    proposed = t == "sure" or (t == "borderline" and p["same_person"])
+    assert p.get("known_fail") or not (t == "sure" and not p["same_person"]), f"{p['case']} {p['a']}/{p['b']}: the sure rule would merge two different people"
+    proposed = (t == "sure" or (t == "borderline" and p["same_person"])) and not p.get("known_fail")  # known_fail: the rule proposes a merge it should not, so the gate fails here
     p["expected"] = dict(tier=t, matched_on=why, model_called=t == "borderline", proposed=proposed)
     if proposed:
         p["expected"]["merge"] = merge_expect(a, b)

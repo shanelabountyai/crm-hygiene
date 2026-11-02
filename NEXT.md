@@ -10,7 +10,7 @@ Done 2026-11-02: N1 teardown, PRD Q1/Q2 answered, `fixtures/build.py` + `rules/*
 2. Teardown: also archive `[demo]` deals and their notes and tasks, and demo companies (`*.example.com` domain).
 3. Three rule-only detectors (port `tier`/`blocks` from build.py; blocking includes company name), the `proposals` tab, and the run log.
 
-Open, for Shane: the sure rule (same phone and same last name) would merge a father and son on one home line, or two Nguyens on one office line. None of the fixtures cover that. Decide whether to add the case, which fails the gate by design until the rule changes.
+Done 2026-11-02 (Shane decided): added the shared-phone case (father and son on one home line, two Nguyens on one office line) to `fixtures/build.py` as labelled not-duplicate pairs. This fails the gate on purpose until the sure rule also requires first name or email to match. Still to do: copy this decision into the PRD's Decisions section (artifact).
 
 Decided 2026-11-02 (Shane), also in the PRD's Decisions section:
 - Review surface = Sheet tab with an accept/reject dropdown.
