@@ -36,7 +36,7 @@
       "name": "Task at -45d", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [600, 0],
       "credentials": { "hubspotAppToken": { "id": "u1WBi64R7zas6Zfn", "name": "HubSpot Service Key account" } }
     },
-    { "parameters": { "amount": 90 }, "name": "Settle", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [800, 0], "webhookId": "n2-probe-deal-settle" },
+    { "parameters": { "amount": 60 }, "name": "Settle", "type": "n8n-nodes-base.wait", "typeVersion": 1.1, "position": [800, 0], "webhookId": "n2-probe-deal-settle" },
     {
       "parameters": {
         "url": "=https://api.hubapi.com/crm/v3/objects/deals/{{ $('Create deal').first().json.id }}?properties=createdate,notes_last_updated,notes_last_contacted,num_notes,hs_lastmodifieddate,hs_notes_next_activity",

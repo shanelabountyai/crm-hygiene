@@ -28,4 +28,9 @@ Not tested: lifecycle stage when the *secondary* is further down the funnel. Hub
 
 The deal property is `notes_last_updated` ("Last Activity Date": note, call, email, meeting or task). `hs_last_sales_activity_timestamp` does not exist on deals in this portal (it is a contact property). `notes_last_contacted` ignores notes and tasks.
 
-Still open: does `notes_last_updated` take a back-dated `hs_timestamp` from API-created engagements? Fixtures depend on this, because a seeded deal that is "60 days stale" needs an old activity date. Blocked: the N1 service key has no deal scopes (403 on `POST /crm/v3/objects/deals`). The probe is in `workflows/dev-probe-deal-activity.json` and cleans up after itself.
+**Back-dating works** (probed 2026-11-02, `workflows/dev-probe-deal-activity.json`). The deal was created today, with an API note at `hs_timestamp` 2026-09-03 and a completed API task at 2026-09-18. Result: `notes_last_updated` = 2026-09-18T12:00:00Z, the latest engagement's `hs_timestamp` and not the time it was created. `num_notes` = 2, so both notes and tasks count. Fixtures can seed a stale deal by back-dating its engagements.
+
+Two traps from the run:
+
+- The N1 service key (HubSpot name `labintelligence`, id 55871605; n8n credential `HubSpot Service Key account`) had no deal scopes. `crm.objects.deals.read` and `crm.objects.deals.write` were added 2026-11-02. N1's SETUP.md lists the old scope set.
+- `n8n execute` parks any Wait node over 65 s until a server resumes it, so the CLI run stops there and skips every node after it. Keep CLI waits at 60 s or less.
