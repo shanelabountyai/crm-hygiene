@@ -13,13 +13,15 @@ REQ, STALE = rd("required_fields"), {r["stage"]: r for r in rd("stale")}
 OWNER = "demo_owner"  # resolved to config hubspot_owner_id at seed time
 FIELDS = ["firstname", "lastname", "email", "phone", "company", "jobtitle", "lifecyclestage", "hubspot_owner_id"]
 
-contacts, pairs, deals, companies = [], [], [], []
+contacts, pairs, deals, companies, dropped = [], [], [], [], []
 def C(first, last, email, phone="", company="", title="", stage="lead", owner=OWNER, **kw):
     return dict(firstname=first, lastname=last, email=email, phone=phone, company=company, jobtitle=title, lifecyclestage=stage, hubspot_owner_id=owner, **kw)
 def seed(c, prefix):
     c = dict(c, key=f"{prefix}{sum(x['key'][0] == prefix for x in contacts) + 1:03d}"); contacts.append(c); return c["key"]
 def P(s, case, a, b, same, note=None, merge_case=None, seed_check=None, known_fail=None):
     """a is seeded first, so it is the older record and the merge primary."""
+    if seed_check:  # dropped 2026-11-03: HubSpot refuses a second contact with the same email ignoring case (seed run: 4 of 5 refused, the 5th failed unexplained), so these pairs cannot exist
+        dropped.append(case); return
     p = dict(set=s, case=case, a=seed(a, "T" if s == "tuned" else "H"), b=seed(b, "T" if s == "tuned" else "H"), same_person=same)
     for k, v in dict(note=note, merge_case=merge_case, seed_check=seed_check, known_fail=known_fail).items():
         if v: p[k] = v
@@ -256,7 +258,7 @@ doc = {"fixture_set": "N2 CRM Hygiene", "version": "1.0", "date": "2026-11-02", 
        "seed_order": "Create contacts in list order; within a pair 'a' is created first, so it is the older record and the merge primary.",
        "stale_clock": "idle_days back-dates the deal's one engagement (a note) to seed time minus idle_days; a deal is stale when floor(elapsed days) > max_idle_days. null means no engagement.",
        "scoring": "Sure tier: zero proposals on same_person=false. Borderline: precision and recall over pairs whose expected.tier is borderline, tuned and holdout separately. known_miss_* cases are excluded from recall.",
-       "companies": companies, "contacts": contacts, "deals": deals, "pairs": pairs, "proposals": proposals}
+       "dropped_cases_hubspot_email_unique": dropped, "companies": companies, "contacts": contacts, "deals": deals, "pairs": pairs, "proposals": proposals}
 json.dump(doc, open(root / "fixtures/n2-fixtures.json", "w"), indent=2, ensure_ascii=False)
 cnt = collections.Counter((p["set"], p["expected"]["tier"], p["same_person"]) for p in pairs)
 print(len(contacts), "contacts,", len(deals), "deals,", len(pairs), "pairs,", len(proposals), "proposals")

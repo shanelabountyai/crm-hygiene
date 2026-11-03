@@ -55,3 +55,24 @@ code("Notes", NOTES); post("Create note", "notes")
 code("Report", REPORT)
 json.dump(dict(id="n2SeedDemo000001", name="N2 seed demo data", active=False, settings={"executionOrder": "v1"}, pinData={}, nodes=nodes, connections=conn), open(root / "workflows/seed.json", "w"), indent=2, ensure_ascii=False)
 print(len(nodes), "nodes,", len(json.dumps(nodes)) // 1024, "KB")
+
+# ---- teardown.json: search, post-filter, batch-archive; 3 passes per type because a search returns at most 100 and archived records drop out of it.
+# Only seeded records match: contacts demo_record=true, deals/notes whose text starts '[demo]', companies on a *.example.com domain. Tasks are added when the scan creates them.
+TYPES = [("notes", {"propertyName": "hs_note_body", "operator": "CONTAINS_TOKEN", "value": "demo"}, "p.hs_note_body && p.hs_note_body.startsWith('[demo]')", "hs_note_body"),
+         ("deals", {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": "demo"}, "p.dealname && p.dealname.startsWith('[demo]')", "dealname"),
+         ("contacts", {"propertyName": "demo_record", "operator": "EQ", "value": "true"}, "p.demo_record === 'true'", "demo_record"),
+         ("companies", {"propertyName": "domain", "operator": "CONTAINS_TOKEN", "value": "*example.com"}, "p.domain && p.domain.endsWith('.example.com')", "domain")]
+nodes, conn, x = [], {}, 0
+def http(name, obj, tail, body):
+    add(name, "n8n-nodes-base.httpRequest", {"method": "POST", "url": f"https://api.hubapi.com/crm/v3/objects/{obj}/{tail}", "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken",
+        "sendBody": True, "specifyBody": "json", "jsonBody": body}, tv=4.2, credentials=CRED, onError="continueRegularOutput")
+add("Run once", "n8n-nodes-base.manualTrigger", {}, tv=1)
+for obj, flt, keep, prop in TYPES:
+    for n in (1, 2, 3):
+        t = f"{obj} {n}"
+        http(f"Search {t}", obj, "search", "=" + json.dumps({"filterGroups": [{"filters": [flt]}], "properties": [prop], "limit": 100}))
+        code(f"Pick {t}", f"const ids = ($json.results || []).filter(r => {{ const p = r.properties; return {keep}; }}).map(r => ({{ id: r.id }}));\nreturn [{{ json: {{ inputs: ids }} }}];")
+        http(f"Archive {t}", obj, "batch/archive", "={{ JSON.stringify({ inputs: $json.inputs }) }}")  # an empty batch is refused; continueRegularOutput lets the chain go on
+code("Report", "return [{ json: { archived: ['notes','deals','contacts','companies'].map(o => [o, [1,2,3].reduce((n, i) => n + ($('Pick ' + o + ' ' + i).first().json.inputs.length), 0)]) } }];")
+json.dump(dict(id="n2TeardownDemo01", name="N2 teardown demo data", active=False, settings={"executionOrder": "v1"}, pinData={}, nodes=nodes, connections=conn), open(root / "workflows/teardown.json", "w"), indent=2)
+print("teardown", len(nodes), "nodes")

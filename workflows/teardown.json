@@ -1,0 +1,1186 @@
+{
+  "id": "n2TeardownDemo01",
+  "name": "N2 teardown demo data",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "Search notes 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"hs_note_body\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"hs_note_body\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick notes 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.hs_note_body && p.hs_note_body.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive notes 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search notes 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"hs_note_body\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"hs_note_body\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick notes 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.hs_note_body && p.hs_note_body.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive notes 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search notes 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"hs_note_body\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"hs_note_body\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick notes 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.hs_note_body && p.hs_note_body.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive notes 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/notes/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search deals 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"dealname\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"dealname\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick deals 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.dealname && p.dealname.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive deals 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search deals 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"dealname\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"dealname\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick deals 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.dealname && p.dealname.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive deals 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3300,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search deals 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"dealname\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"dealname\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick deals 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.dealname && p.dealname.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive deals 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3960,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search contacts 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4180,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick contacts 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive contacts 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4620,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search contacts 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4840,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick contacts 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5060,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive contacts 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5280,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search contacts 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5500,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick contacts 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5720,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive contacts 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5940,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search companies 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6160,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/companies/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"domain\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"*example.com\"}]}], \"properties\": [\"domain\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick companies 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6380,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.domain && p.domain.endsWith('.example.com'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive companies 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6600,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/companies/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search companies 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6820,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/companies/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"domain\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"*example.com\"}]}], \"properties\": [\"domain\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick companies 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7040,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.domain && p.domain.endsWith('.example.com'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive companies 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7260,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/companies/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Search companies 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7480,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/companies/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"domain\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"*example.com\"}]}], \"properties\": [\"domain\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick companies 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7700,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.domain && p.domain.endsWith('.example.com'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive companies 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7920,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/companies/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8140,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: { archived: ['notes','deals','contacts','companies'].map(o => [o, [1,2,3].reduce((n, i) => n + ($('Pick ' + o + ' ' + i).first().json.inputs.length), 0)]) } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Search notes 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search notes 1": {
+      "main": [
+        [
+          {
+            "node": "Pick notes 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick notes 1": {
+      "main": [
+        [
+          {
+            "node": "Archive notes 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive notes 1": {
+      "main": [
+        [
+          {
+            "node": "Search notes 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search notes 2": {
+      "main": [
+        [
+          {
+            "node": "Pick notes 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick notes 2": {
+      "main": [
+        [
+          {
+            "node": "Archive notes 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive notes 2": {
+      "main": [
+        [
+          {
+            "node": "Search notes 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search notes 3": {
+      "main": [
+        [
+          {
+            "node": "Pick notes 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick notes 3": {
+      "main": [
+        [
+          {
+            "node": "Archive notes 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive notes 3": {
+      "main": [
+        [
+          {
+            "node": "Search deals 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search deals 1": {
+      "main": [
+        [
+          {
+            "node": "Pick deals 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick deals 1": {
+      "main": [
+        [
+          {
+            "node": "Archive deals 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive deals 1": {
+      "main": [
+        [
+          {
+            "node": "Search deals 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search deals 2": {
+      "main": [
+        [
+          {
+            "node": "Pick deals 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick deals 2": {
+      "main": [
+        [
+          {
+            "node": "Archive deals 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive deals 2": {
+      "main": [
+        [
+          {
+            "node": "Search deals 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search deals 3": {
+      "main": [
+        [
+          {
+            "node": "Pick deals 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick deals 3": {
+      "main": [
+        [
+          {
+            "node": "Archive deals 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive deals 3": {
+      "main": [
+        [
+          {
+            "node": "Search contacts 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search contacts 1": {
+      "main": [
+        [
+          {
+            "node": "Pick contacts 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick contacts 1": {
+      "main": [
+        [
+          {
+            "node": "Archive contacts 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive contacts 1": {
+      "main": [
+        [
+          {
+            "node": "Search contacts 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search contacts 2": {
+      "main": [
+        [
+          {
+            "node": "Pick contacts 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick contacts 2": {
+      "main": [
+        [
+          {
+            "node": "Archive contacts 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive contacts 2": {
+      "main": [
+        [
+          {
+            "node": "Search contacts 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search contacts 3": {
+      "main": [
+        [
+          {
+            "node": "Pick contacts 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick contacts 3": {
+      "main": [
+        [
+          {
+            "node": "Archive contacts 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive contacts 3": {
+      "main": [
+        [
+          {
+            "node": "Search companies 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search companies 1": {
+      "main": [
+        [
+          {
+            "node": "Pick companies 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick companies 1": {
+      "main": [
+        [
+          {
+            "node": "Archive companies 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive companies 1": {
+      "main": [
+        [
+          {
+            "node": "Search companies 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search companies 2": {
+      "main": [
+        [
+          {
+            "node": "Pick companies 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick companies 2": {
+      "main": [
+        [
+          {
+            "node": "Archive companies 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive companies 2": {
+      "main": [
+        [
+          {
+            "node": "Search companies 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search companies 3": {
+      "main": [
+        [
+          {
+            "node": "Pick companies 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick companies 3": {
+      "main": [
+        [
+          {
+            "node": "Archive companies 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive companies 3": {
+      "main": [
+        [
+          {
+            "node": "Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

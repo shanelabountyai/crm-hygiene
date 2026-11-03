@@ -7,6 +7,13 @@
   "seed_order": "Create contacts in list order; within a pair 'a' is created first, so it is the older record and the merge primary.",
   "stale_clock": "idle_days back-dates the deal's one engagement (a note) to seed time minus idle_days; a deal is stale when floor(elapsed days) > max_idle_days. null means no engagement.",
   "scoring": "Sure tier: zero proposals on same_person=false. Borderline: precision and recall over pairs whose expected.tier is borderline, tuned and holdout separately. known_miss_* cases are excluded from recall.",
+  "dropped_cases_hubspot_email_unique": [
+    "email_case",
+    "email_case",
+    "shared_inbox_same_person",
+    "shared_inbox",
+    "shared_inbox"
+  ],
   "companies": [
     {
       "key": "CO1",
@@ -16,50 +23,6 @@
   ],
   "contacts": [
     {
-      "firstname": "Ann",
-      "lastname": "Whitaker",
-      "email": "ann.whitaker@harlowpartners.example.com",
-      "phone": "",
-      "company": "Harlow Partners",
-      "jobtitle": "Controller",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T001"
-    },
-    {
-      "firstname": "Ann",
-      "lastname": "Whitaker",
-      "email": "Ann.Whitaker@HarlowPartners.example.com",
-      "phone": "",
-      "company": "Harlow Partners",
-      "jobtitle": "CFO",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T002"
-    },
-    {
-      "firstname": "Marcus",
-      "lastname": "Bell",
-      "email": "mbell@quarryline.example.com",
-      "phone": "",
-      "company": "Quarryline Stone",
-      "jobtitle": "",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T003"
-    },
-    {
-      "firstname": "Marcus",
-      "lastname": "Bell",
-      "email": "MBell@quarryline.example.com",
-      "phone": "",
-      "company": "Quarryline Stone",
-      "jobtitle": "Owner",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T004"
-    },
-    {
       "firstname": "Jonah",
       "lastname": "Pierce",
       "email": "jonah.pierce@gmail.example.com",
@@ -68,7 +31,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T005"
+      "key": "T001"
     },
     {
       "firstname": "Jonah",
@@ -79,7 +42,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T006"
+      "key": "T002"
     },
     {
       "firstname": "Leah",
@@ -90,7 +53,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T007"
+      "key": "T003"
     },
     {
       "firstname": "Leah",
@@ -101,7 +64,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T008"
+      "key": "T004"
     },
     {
       "firstname": "Tamsin",
@@ -112,7 +75,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T009"
+      "key": "T005"
     },
     {
       "firstname": "Tamsin",
@@ -123,7 +86,7 @@
       "jobtitle": "Founder",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T010"
+      "key": "T006"
     },
     {
       "firstname": "Felix",
@@ -134,7 +97,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T011"
+      "key": "T007"
     },
     {
       "firstname": "Felix",
@@ -145,7 +108,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T012"
+      "key": "T008"
     },
     {
       "firstname": "Rosa",
@@ -156,7 +119,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T013"
+      "key": "T009"
     },
     {
       "firstname": "Rosa",
@@ -167,7 +130,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T014"
+      "key": "T010"
     },
     {
       "firstname": "Ivan",
@@ -178,7 +141,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T015"
+      "key": "T011"
     },
     {
       "firstname": "Ivan",
@@ -189,7 +152,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T016"
+      "key": "T012"
     },
     {
       "firstname": "Megan",
@@ -200,7 +163,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T017"
+      "key": "T013"
     },
     {
       "firstname": "Megan",
@@ -211,7 +174,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T018"
+      "key": "T014"
     },
     {
       "firstname": "Dana",
@@ -222,7 +185,7 @@
       "jobtitle": "VP Operations",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T019"
+      "key": "T015"
     },
     {
       "firstname": "Dana",
@@ -233,7 +196,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T020"
+      "key": "T016"
     },
     {
       "firstname": "Owen",
@@ -244,7 +207,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T021"
+      "key": "T017"
     },
     {
       "firstname": "Owen",
@@ -255,7 +218,7 @@
       "jobtitle": "",
       "lifecyclestage": "opportunity",
       "hubspot_owner_id": "demo_owner",
-      "key": "T022"
+      "key": "T018"
     },
     {
       "firstname": "Priya",
@@ -266,7 +229,7 @@
       "jobtitle": "",
       "lifecyclestage": "subscriber",
       "hubspot_owner_id": "demo_owner",
-      "key": "T023"
+      "key": "T019"
     },
     {
       "firstname": "Priya",
@@ -277,7 +240,7 @@
       "jobtitle": "",
       "lifecyclestage": "customer",
       "hubspot_owner_id": "demo_owner",
-      "key": "T024"
+      "key": "T020"
     },
     {
       "firstname": "Hugo",
@@ -288,7 +251,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T025"
+      "key": "T021"
     },
     {
       "firstname": "Hugo",
@@ -299,7 +262,7 @@
       "jobtitle": "Data Lead",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T026"
+      "key": "T022"
     },
     {
       "firstname": "Robert",
@@ -310,7 +273,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T027"
+      "key": "T023"
     },
     {
       "firstname": "Bob",
@@ -321,7 +284,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T028"
+      "key": "T024"
     },
     {
       "firstname": "Gwen",
@@ -332,7 +295,7 @@
       "jobtitle": "HR Director",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T029"
+      "key": "T025"
     },
     {
       "firstname": "Gwen",
@@ -343,7 +306,7 @@
       "jobtitle": "VP People",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T030"
+      "key": "T026"
     },
     {
       "firstname": "Nadia",
@@ -354,7 +317,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T031"
+      "key": "T027"
     },
     {
       "firstname": "Nadia",
@@ -365,7 +328,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T032"
+      "key": "T028"
     },
     {
       "firstname": "Theo",
@@ -376,7 +339,7 @@
       "jobtitle": "",
       "lifecyclestage": "marketingqualifiedlead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T033"
+      "key": "T029"
     },
     {
       "firstname": "Theo",
@@ -387,7 +350,7 @@
       "jobtitle": "",
       "lifecyclestage": "salesqualifiedlead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T034"
+      "key": "T030"
     },
     {
       "firstname": "Bob",
@@ -398,7 +361,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T035"
+      "key": "T031"
     },
     {
       "firstname": "Robert",
@@ -409,7 +372,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T036"
+      "key": "T032"
     },
     {
       "firstname": "Bill",
@@ -420,7 +383,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T037"
+      "key": "T033"
     },
     {
       "firstname": "William",
@@ -431,7 +394,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T038"
+      "key": "T034"
     },
     {
       "firstname": "Jim",
@@ -442,7 +405,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T039"
+      "key": "T035"
     },
     {
       "firstname": "James",
@@ -453,7 +416,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T040"
+      "key": "T036"
     },
     {
       "firstname": "Liz",
@@ -464,7 +427,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T041"
+      "key": "T037"
     },
     {
       "firstname": "Elizabeth",
@@ -475,7 +438,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T042"
+      "key": "T038"
     },
     {
       "firstname": "Kate",
@@ -486,7 +449,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T043"
+      "key": "T039"
     },
     {
       "firstname": "Katherine",
@@ -497,7 +460,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T044"
+      "key": "T040"
     },
     {
       "firstname": "Mike",
@@ -508,7 +471,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T045"
+      "key": "T041"
     },
     {
       "firstname": "Michael",
@@ -519,7 +482,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T046"
+      "key": "T042"
     },
     {
       "firstname": "Tom",
@@ -530,7 +493,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T047"
+      "key": "T043"
     },
     {
       "firstname": "Thomas",
@@ -541,7 +504,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T048"
+      "key": "T044"
     },
     {
       "firstname": "Dave",
@@ -552,7 +515,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T049"
+      "key": "T045"
     },
     {
       "firstname": "David",
@@ -563,7 +526,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T050"
+      "key": "T046"
     },
     {
       "firstname": "Jen",
@@ -574,7 +537,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T051"
+      "key": "T047"
     },
     {
       "firstname": "Jennifer",
@@ -585,7 +548,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T052"
+      "key": "T048"
     },
     {
       "firstname": "Tony",
@@ -596,7 +559,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T053"
+      "key": "T049"
     },
     {
       "firstname": "Anthony",
@@ -607,7 +570,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T054"
+      "key": "T050"
     },
     {
       "firstname": "Peggy",
@@ -618,7 +581,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T055"
+      "key": "T051"
     },
     {
       "firstname": "Margaret",
@@ -629,7 +592,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T056"
+      "key": "T052"
     },
     {
       "firstname": "Sara",
@@ -640,7 +603,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T057"
+      "key": "T053"
     },
     {
       "firstname": "Sara",
@@ -651,7 +614,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T058"
+      "key": "T054"
     },
     {
       "firstname": "Martin",
@@ -662,7 +625,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T059"
+      "key": "T055"
     },
     {
       "firstname": "Martin",
@@ -673,7 +636,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T060"
+      "key": "T056"
     },
     {
       "firstname": "Katie",
@@ -684,7 +647,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T061"
+      "key": "T057"
     },
     {
       "firstname": "Katherine",
@@ -695,7 +658,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T062"
+      "key": "T058"
     },
     {
       "firstname": "Beth",
@@ -706,7 +669,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T063"
+      "key": "T059"
     },
     {
       "firstname": "Elizabeth",
@@ -717,7 +680,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T064"
+      "key": "T060"
     },
     {
       "firstname": "Will",
@@ -728,7 +691,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T065"
+      "key": "T061"
     },
     {
       "firstname": "William",
@@ -739,7 +702,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T066"
+      "key": "T062"
     },
     {
       "firstname": "Rick",
@@ -750,7 +713,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T067"
+      "key": "T063"
     },
     {
       "firstname": "Richard",
@@ -761,7 +724,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T068"
+      "key": "T064"
     },
     {
       "firstname": "Maggie",
@@ -772,7 +735,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T069"
+      "key": "T065"
     },
     {
       "firstname": "Margaret",
@@ -783,29 +746,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T070"
-    },
-    {
-      "firstname": "Grace",
-      "lastname": "Liu",
-      "email": "sales@summitridge.example.com",
-      "phone": "",
-      "company": "Summit Ridge Realty",
-      "jobtitle": "",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T071"
-    },
-    {
-      "firstname": "Grace",
-      "lastname": "Liu",
-      "email": "Sales@summitridge.example.com",
-      "phone": "",
-      "company": "Summit Ridge Realty",
-      "jobtitle": "Broker",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T072"
+      "key": "T066"
     },
     {
       "firstname": "Raj",
@@ -816,7 +757,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T073"
+      "key": "T067"
     },
     {
       "firstname": "Anita",
@@ -827,7 +768,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T074"
+      "key": "T068"
     },
     {
       "firstname": "Sean",
@@ -838,7 +779,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T075"
+      "key": "T069"
     },
     {
       "firstname": "Maeve",
@@ -849,7 +790,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T076"
+      "key": "T070"
     },
     {
       "firstname": "Michael",
@@ -860,7 +801,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T077"
+      "key": "T071"
     },
     {
       "firstname": "Michael",
@@ -871,7 +812,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T078"
+      "key": "T072"
     },
     {
       "firstname": "Jen",
@@ -882,7 +823,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T079"
+      "key": "T073"
     },
     {
       "firstname": "Jennifer",
@@ -893,7 +834,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T080"
+      "key": "T074"
     },
     {
       "firstname": "Dan",
@@ -904,7 +845,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T081"
+      "key": "T075"
     },
     {
       "firstname": "Daniel",
@@ -915,7 +856,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T082"
+      "key": "T076"
     },
     {
       "firstname": "Sam",
@@ -926,7 +867,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T083"
+      "key": "T077"
     },
     {
       "firstname": "Samantha",
@@ -937,51 +878,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T084"
-    },
-    {
-      "firstname": "Lena",
-      "lastname": "Ford",
-      "email": "info@ballastcoffee.example.com",
-      "phone": "",
-      "company": "Ballast Coffee",
-      "jobtitle": "",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T085"
-    },
-    {
-      "firstname": "Marco",
-      "lastname": "Rossi",
-      "email": "INFO@ballastcoffee.example.com",
-      "phone": "",
-      "company": "Ballast Coffee",
-      "jobtitle": "",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T086"
-    },
-    {
-      "firstname": "Noor",
-      "lastname": "Haddad",
-      "email": "hello@tidewaterstudio.example.com",
-      "phone": "",
-      "company": "Tidewater Studio",
-      "jobtitle": "",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T087"
-    },
-    {
-      "firstname": "Iris",
-      "lastname": "Haddad",
-      "email": "hello@tidewaterstudio.example.com",
-      "phone": "",
-      "company": "Tidewater Studio",
-      "jobtitle": "",
-      "lifecyclestage": "lead",
-      "hubspot_owner_id": "demo_owner",
-      "key": "T088"
+      "key": "T078"
     },
     {
       "firstname": "Victor",
@@ -992,7 +889,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T089"
+      "key": "T079"
     },
     {
       "firstname": "Helena",
@@ -1003,7 +900,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T090"
+      "key": "T080"
     },
     {
       "firstname": "Arjun",
@@ -1014,7 +911,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T091"
+      "key": "T081"
     },
     {
       "firstname": "Kavya",
@@ -1025,7 +922,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T092"
+      "key": "T082"
     },
     {
       "firstname": "Laura",
@@ -1036,7 +933,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T093"
+      "key": "T083"
     },
     {
       "firstname": "Laura",
@@ -1047,7 +944,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T094"
+      "key": "T084"
     },
     {
       "firstname": "Bob",
@@ -1058,7 +955,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T095"
+      "key": "T085"
     },
     {
       "firstname": "Robert",
@@ -1069,7 +966,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T096"
+      "key": "T086"
     },
     {
       "firstname": "Alex",
@@ -1080,7 +977,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T097"
+      "key": "T087"
     },
     {
       "firstname": "Alexandra",
@@ -1091,7 +988,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T098"
+      "key": "T088"
     },
     {
       "firstname": "Rob",
@@ -1102,7 +999,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T099"
+      "key": "T089"
     },
     {
       "firstname": "Robin",
@@ -1113,7 +1010,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T100"
+      "key": "T090"
     },
     {
       "firstname": "Daniel",
@@ -1124,7 +1021,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T101"
+      "key": "T091"
     },
     {
       "firstname": "Danielle",
@@ -1135,7 +1032,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T102"
+      "key": "T092"
     },
     {
       "firstname": "Tom",
@@ -1146,7 +1043,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T103"
+      "key": "T093"
     },
     {
       "firstname": "Tom",
@@ -1157,7 +1054,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T104"
+      "key": "T094"
     },
     {
       "firstname": "Emma",
@@ -1168,7 +1065,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T105"
+      "key": "T095"
     },
     {
       "firstname": "Emma",
@@ -1179,7 +1076,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T106"
+      "key": "T096"
     },
     {
       "firstname": "Hannah",
@@ -1190,7 +1087,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T107"
+      "key": "T097"
     },
     {
       "firstname": "Hannah",
@@ -1201,7 +1098,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T108"
+      "key": "T098"
     },
     {
       "firstname": "Lucas",
@@ -1212,7 +1109,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T109"
+      "key": "T099"
     },
     {
       "firstname": "Ivy",
@@ -1223,7 +1120,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T110"
+      "key": "T100"
     },
     {
       "firstname": "Carla",
@@ -1234,7 +1131,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T111"
+      "key": "T101"
     },
     {
       "firstname": "Carla",
@@ -1245,7 +1142,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T112"
+      "key": "T102"
     },
     {
       "firstname": "Quentin",
@@ -1256,7 +1153,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T113"
+      "key": "T103"
     },
     {
       "firstname": "Yusuf",
@@ -1267,7 +1164,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T114"
+      "key": "T104"
     },
     {
       "firstname": "Ruth",
@@ -1278,7 +1175,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T115"
+      "key": "T105"
     },
     {
       "firstname": "Kofi",
@@ -1289,7 +1186,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T116"
+      "key": "T106"
     },
     {
       "firstname": "Felicity",
@@ -1300,7 +1197,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T117"
+      "key": "T107"
     },
     {
       "firstname": "Felicity",
@@ -1311,7 +1208,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T118"
+      "key": "T108"
     },
     {
       "firstname": "Nora",
@@ -1322,7 +1219,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T119"
+      "key": "T109"
     },
     {
       "firstname": "Nora",
@@ -1333,7 +1230,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T120"
+      "key": "T110"
     },
     {
       "firstname": "Walter",
@@ -1344,7 +1241,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T121"
+      "key": "T111"
     },
     {
       "firstname": "Walter",
@@ -1355,7 +1252,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T122"
+      "key": "T112"
     },
     {
       "firstname": "Linh",
@@ -1366,7 +1263,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T123"
+      "key": "T113"
     },
     {
       "firstname": "Tuan",
@@ -1377,7 +1274,7 @@
       "jobtitle": "",
       "lifecyclestage": "lead",
       "hubspot_owner_id": "demo_owner",
-      "key": "T124"
+      "key": "T114"
     },
     {
       "firstname": "Corinne",
@@ -2014,12 +1911,10 @@
   "pairs": [
     {
       "set": "tuned",
-      "case": "email_case",
+      "case": "gmail_dots",
       "a": "T001",
       "b": "T002",
       "same_person": true,
-      "merge_case": "conflict_primary_wins",
-      "seed_check": "hubspot_email_unique",
       "expected": {
         "tier": "sure",
         "matched_on": "email",
@@ -2028,66 +1923,6 @@
         "merge": {
           "primary": "T001",
           "secondary": "T002",
-          "result": {
-            "firstname": "Ann",
-            "lastname": "Whitaker",
-            "phone": "",
-            "company": "Harlow Partners",
-            "jobtitle": "Controller",
-            "hubspot_owner_id": "demo_owner",
-            "email": "ann.whitaker@harlowpartners.example.com",
-            "lifecyclestage": "lead"
-          },
-          "lost_values": {
-            "jobtitle": "CFO"
-          }
-        }
-      }
-    },
-    {
-      "set": "tuned",
-      "case": "email_case",
-      "a": "T003",
-      "b": "T004",
-      "same_person": true,
-      "merge_case": "blank_filled_from_secondary",
-      "seed_check": "hubspot_email_unique",
-      "expected": {
-        "tier": "sure",
-        "matched_on": "email",
-        "model_called": false,
-        "proposed": true,
-        "merge": {
-          "primary": "T003",
-          "secondary": "T004",
-          "result": {
-            "firstname": "Marcus",
-            "lastname": "Bell",
-            "phone": "",
-            "company": "Quarryline Stone",
-            "jobtitle": "Owner",
-            "hubspot_owner_id": "demo_owner",
-            "email": "mbell@quarryline.example.com",
-            "lifecyclestage": "lead"
-          },
-          "lost_values": {}
-        }
-      }
-    },
-    {
-      "set": "tuned",
-      "case": "gmail_dots",
-      "a": "T005",
-      "b": "T006",
-      "same_person": true,
-      "expected": {
-        "tier": "sure",
-        "matched_on": "email",
-        "model_called": false,
-        "proposed": true,
-        "merge": {
-          "primary": "T005",
-          "secondary": "T006",
           "result": {
             "firstname": "Jonah",
             "lastname": "Pierce",
@@ -2108,8 +1943,8 @@
     {
       "set": "tuned",
       "case": "gmail_dots",
-      "a": "T007",
-      "b": "T008",
+      "a": "T003",
+      "b": "T004",
       "same_person": true,
       "expected": {
         "tier": "sure",
@@ -2117,8 +1952,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T007",
-          "secondary": "T008",
+          "primary": "T003",
+          "secondary": "T004",
           "result": {
             "firstname": "Leah",
             "lastname": "Ostrander",
@@ -2139,8 +1974,8 @@
     {
       "set": "tuned",
       "case": "gmail_dots",
-      "a": "T009",
-      "b": "T010",
+      "a": "T005",
+      "b": "T006",
       "same_person": true,
       "merge_case": "blank_filled_from_secondary",
       "expected": {
@@ -2149,8 +1984,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T009",
-          "secondary": "T010",
+          "primary": "T005",
+          "secondary": "T006",
           "result": {
             "firstname": "Tamsin",
             "lastname": "Boyle",
@@ -2171,8 +2006,8 @@
     {
       "set": "tuned",
       "case": "plus_tag",
-      "a": "T011",
-      "b": "T012",
+      "a": "T007",
+      "b": "T008",
       "same_person": true,
       "expected": {
         "tier": "sure",
@@ -2180,8 +2015,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T011",
-          "secondary": "T012",
+          "primary": "T007",
+          "secondary": "T008",
           "result": {
             "firstname": "Felix",
             "lastname": "Granger",
@@ -2202,8 +2037,8 @@
     {
       "set": "tuned",
       "case": "plus_tag",
-      "a": "T013",
-      "b": "T014",
+      "a": "T009",
+      "b": "T010",
       "same_person": true,
       "note": "+tag is removed on any domain, not only free mail.",
       "expected": {
@@ -2212,8 +2047,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T013",
-          "secondary": "T014",
+          "primary": "T009",
+          "secondary": "T010",
           "result": {
             "firstname": "Rosa",
             "lastname": "Delgado",
@@ -2234,8 +2069,8 @@
     {
       "set": "tuned",
       "case": "plus_tag",
-      "a": "T015",
-      "b": "T016",
+      "a": "T011",
+      "b": "T012",
       "same_person": true,
       "note": "Dots and +tag together.",
       "expected": {
@@ -2244,8 +2079,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T015",
-          "secondary": "T016",
+          "primary": "T011",
+          "secondary": "T012",
           "result": {
             "firstname": "Ivan",
             "lastname": "Petrov",
@@ -2266,8 +2101,8 @@
     {
       "set": "tuned",
       "case": "plus_tag",
-      "a": "T017",
-      "b": "T018",
+      "a": "T013",
+      "b": "T014",
       "same_person": true,
       "expected": {
         "tier": "sure",
@@ -2275,8 +2110,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T017",
-          "secondary": "T018",
+          "primary": "T013",
+          "secondary": "T014",
           "result": {
             "firstname": "Megan",
             "lastname": "Holt",
@@ -2297,8 +2132,8 @@
     {
       "set": "tuned",
       "case": "work_personal_phone",
-      "a": "T019",
-      "b": "T020",
+      "a": "T015",
+      "b": "T016",
       "same_person": true,
       "merge_case": "extra_email",
       "expected": {
@@ -2307,8 +2142,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T019",
-          "secondary": "T020",
+          "primary": "T015",
+          "secondary": "T016",
           "result": {
             "firstname": "Dana",
             "lastname": "Whitfield",
@@ -2329,8 +2164,8 @@
     {
       "set": "tuned",
       "case": "work_personal_phone",
-      "a": "T021",
-      "b": "T022",
+      "a": "T017",
+      "b": "T018",
       "same_person": true,
       "merge_case": "secondary_later_lifecycle",
       "expected": {
@@ -2339,8 +2174,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T021",
-          "secondary": "T022",
+          "primary": "T017",
+          "secondary": "T018",
           "result": {
             "firstname": "Owen",
             "lastname": "Carver",
@@ -2366,8 +2201,8 @@
     {
       "set": "tuned",
       "case": "work_personal_phone",
-      "a": "T023",
-      "b": "T024",
+      "a": "T019",
+      "b": "T020",
       "same_person": true,
       "merge_case": "secondary_later_lifecycle",
       "expected": {
@@ -2376,8 +2211,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T023",
-          "secondary": "T024",
+          "primary": "T019",
+          "secondary": "T020",
           "result": {
             "firstname": "Priya",
             "lastname": "Raman",
@@ -2403,8 +2238,8 @@
     {
       "set": "tuned",
       "case": "work_personal_phone",
-      "a": "T025",
-      "b": "T026",
+      "a": "T021",
+      "b": "T022",
       "same_person": true,
       "merge_case": "blank_filled_from_secondary",
       "expected": {
@@ -2413,8 +2248,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T025",
-          "secondary": "T026",
+          "primary": "T021",
+          "secondary": "T022",
           "result": {
             "firstname": "Hugo",
             "lastname": "Lindqvist",
@@ -2435,8 +2270,8 @@
     {
       "set": "tuned",
       "case": "phone_nickname",
-      "a": "T027",
-      "b": "T028",
+      "a": "T023",
+      "b": "T024",
       "same_person": true,
       "note": "Sure on phone and last name; primary keeps 'Robert'.",
       "merge_case": "conflict_primary_wins",
@@ -2446,8 +2281,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T027",
-          "secondary": "T028",
+          "primary": "T023",
+          "secondary": "T024",
           "result": {
             "firstname": "Robert",
             "lastname": "Kessler",
@@ -2470,8 +2305,8 @@
     {
       "set": "tuned",
       "case": "work_personal_phone",
-      "a": "T029",
-      "b": "T030",
+      "a": "T025",
+      "b": "T026",
       "same_person": true,
       "merge_case": "conflict_primary_wins",
       "expected": {
@@ -2480,8 +2315,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T029",
-          "secondary": "T030",
+          "primary": "T025",
+          "secondary": "T026",
           "result": {
             "firstname": "Gwen",
             "lastname": "Talbot",
@@ -2505,8 +2340,8 @@
     {
       "set": "tuned",
       "case": "plus_tag",
-      "a": "T031",
-      "b": "T032",
+      "a": "T027",
+      "b": "T028",
       "same_person": true,
       "note": "Phones conflict; the secondary's is lost.",
       "merge_case": "conflict_primary_wins",
@@ -2516,8 +2351,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T031",
-          "secondary": "T032",
+          "primary": "T027",
+          "secondary": "T028",
           "result": {
             "firstname": "Nadia",
             "lastname": "Farouk",
@@ -2540,8 +2375,8 @@
     {
       "set": "tuned",
       "case": "gmail_dots",
-      "a": "T033",
-      "b": "T034",
+      "a": "T029",
+      "b": "T030",
       "same_person": true,
       "merge_case": "secondary_later_lifecycle",
       "expected": {
@@ -2550,8 +2385,8 @@
         "model_called": false,
         "proposed": true,
         "merge": {
-          "primary": "T033",
-          "secondary": "T034",
+          "primary": "T029",
+          "secondary": "T030",
           "result": {
             "firstname": "Theo",
             "lastname": "Brandt",
@@ -2577,8 +2412,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T035",
-      "b": "T036",
+      "a": "T031",
+      "b": "T032",
       "same_person": true,
       "note": "The PRD's Bob/Robert case.",
       "expected": {
@@ -2587,8 +2422,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T035",
-          "secondary": "T036",
+          "primary": "T031",
+          "secondary": "T032",
           "result": {
             "firstname": "Bob",
             "lastname": "Smith",
@@ -2612,8 +2447,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain",
-      "a": "T037",
-      "b": "T038",
+      "a": "T033",
+      "b": "T034",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2621,8 +2456,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T037",
-          "secondary": "T038",
+          "primary": "T033",
+          "secondary": "T034",
           "result": {
             "firstname": "Bill",
             "lastname": "Harper",
@@ -2646,8 +2481,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T039",
-      "b": "T040",
+      "a": "T035",
+      "b": "T036",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2655,8 +2490,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T039",
-          "secondary": "T040",
+          "primary": "T035",
+          "secondary": "T036",
           "result": {
             "firstname": "Jim",
             "lastname": "Coyle",
@@ -2680,8 +2515,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain",
-      "a": "T041",
-      "b": "T042",
+      "a": "T037",
+      "b": "T038",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2689,8 +2524,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T041",
-          "secondary": "T042",
+          "primary": "T037",
+          "secondary": "T038",
           "result": {
             "firstname": "Liz",
             "lastname": "Moreau",
@@ -2713,8 +2548,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T043",
-      "b": "T044",
+      "a": "T039",
+      "b": "T040",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2722,8 +2557,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T043",
-          "secondary": "T044",
+          "primary": "T039",
+          "secondary": "T040",
           "result": {
             "firstname": "Kate",
             "lastname": "Albright",
@@ -2746,8 +2581,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain",
-      "a": "T045",
-      "b": "T046",
+      "a": "T041",
+      "b": "T042",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2755,8 +2590,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T045",
-          "secondary": "T046",
+          "primary": "T041",
+          "secondary": "T042",
           "result": {
             "firstname": "Mike",
             "lastname": "Duran",
@@ -2779,8 +2614,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T047",
-      "b": "T048",
+      "a": "T043",
+      "b": "T044",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2788,8 +2623,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T047",
-          "secondary": "T048",
+          "primary": "T043",
+          "secondary": "T044",
           "result": {
             "firstname": "Tom",
             "lastname": "Ashby",
@@ -2813,8 +2648,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain",
-      "a": "T049",
-      "b": "T050",
+      "a": "T045",
+      "b": "T046",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2822,8 +2657,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T049",
-          "secondary": "T050",
+          "primary": "T045",
+          "secondary": "T046",
           "result": {
             "firstname": "Dave",
             "lastname": "Okonkwo",
@@ -2846,8 +2681,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T051",
-      "b": "T052",
+      "a": "T047",
+      "b": "T048",
       "same_person": true,
       "note": "'&' and 'and' normalize equal.",
       "expected": {
@@ -2856,8 +2691,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T051",
-          "secondary": "T052",
+          "primary": "T047",
+          "secondary": "T048",
           "result": {
             "firstname": "Jen",
             "lastname": "Halvorsen",
@@ -2881,8 +2716,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain",
-      "a": "T053",
-      "b": "T054",
+      "a": "T049",
+      "b": "T050",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2890,8 +2725,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T053",
-          "secondary": "T054",
+          "primary": "T049",
+          "secondary": "T050",
           "result": {
             "firstname": "Tony",
             "lastname": "Ricci",
@@ -2914,8 +2749,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T055",
-      "b": "T056",
+      "a": "T051",
+      "b": "T052",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2923,8 +2758,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T055",
-          "secondary": "T056",
+          "primary": "T051",
+          "secondary": "T052",
           "result": {
             "firstname": "Peggy",
             "lastname": "Lund",
@@ -2947,8 +2782,8 @@
     {
       "set": "tuned",
       "case": "same_name_domain",
-      "a": "T057",
-      "b": "T058",
+      "a": "T053",
+      "b": "T054",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2956,8 +2791,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T057",
-          "secondary": "T058",
+          "primary": "T053",
+          "secondary": "T054",
           "result": {
             "firstname": "Sara",
             "lastname": "Quinlan",
@@ -2978,8 +2813,8 @@
     {
       "set": "tuned",
       "case": "same_name_company",
-      "a": "T059",
-      "b": "T060",
+      "a": "T055",
+      "b": "T056",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -2987,8 +2822,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T059",
-          "secondary": "T060",
+          "primary": "T055",
+          "secondary": "T056",
           "result": {
             "firstname": "Martin",
             "lastname": "Voss",
@@ -3011,8 +2846,8 @@
     {
       "set": "tuned",
       "case": "married_name_phone",
-      "a": "T061",
-      "b": "T062",
+      "a": "T057",
+      "b": "T058",
       "same_person": true,
       "note": "Last name changed; nickname first name and the phone carry it.",
       "expected": {
@@ -3021,8 +2856,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T061",
-          "secondary": "T062",
+          "primary": "T057",
+          "secondary": "T058",
           "result": {
             "firstname": "Katie",
             "lastname": "Morales",
@@ -3046,8 +2881,8 @@
     {
       "set": "tuned",
       "case": "married_name_phone",
-      "a": "T063",
-      "b": "T064",
+      "a": "T059",
+      "b": "T060",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -3055,8 +2890,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T063",
-          "secondary": "T064",
+          "primary": "T059",
+          "secondary": "T060",
           "result": {
             "firstname": "Beth",
             "lastname": "Sorensen",
@@ -3080,8 +2915,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T065",
-      "b": "T066",
+      "a": "T061",
+      "b": "T062",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -3089,8 +2924,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T065",
-          "secondary": "T066",
+          "primary": "T061",
+          "secondary": "T062",
           "result": {
             "firstname": "Will",
             "lastname": "Ahn",
@@ -3114,8 +2949,8 @@
     {
       "set": "tuned",
       "case": "nickname_company",
-      "a": "T067",
-      "b": "T068",
+      "a": "T063",
+      "b": "T064",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -3123,8 +2958,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T067",
-          "secondary": "T068",
+          "primary": "T063",
+          "secondary": "T064",
           "result": {
             "firstname": "Rick",
             "lastname": "Alvarez",
@@ -3148,8 +2983,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain",
-      "a": "T069",
-      "b": "T070",
+      "a": "T065",
+      "b": "T066",
       "same_person": true,
       "expected": {
         "tier": "borderline",
@@ -3157,8 +2992,8 @@
         "model_called": true,
         "proposed": true,
         "merge": {
-          "primary": "T069",
-          "secondary": "T070",
+          "primary": "T065",
+          "secondary": "T066",
           "result": {
             "firstname": "Maggie",
             "lastname": "Chen",
@@ -3180,39 +3015,9 @@
     },
     {
       "set": "tuned",
-      "case": "shared_inbox_same_person",
-      "a": "T071",
-      "b": "T072",
-      "same_person": true,
-      "note": "A shared inbox never makes a sure match; here it is one person entered twice.",
-      "seed_check": "hubspot_email_unique",
-      "expected": {
-        "tier": "borderline",
-        "matched_on": "shared_inbox",
-        "model_called": true,
-        "proposed": true,
-        "merge": {
-          "primary": "T071",
-          "secondary": "T072",
-          "result": {
-            "firstname": "Grace",
-            "lastname": "Liu",
-            "phone": "",
-            "company": "Summit Ridge Realty",
-            "jobtitle": "Broker",
-            "hubspot_owner_id": "demo_owner",
-            "email": "sales@summitridge.example.com",
-            "lifecyclestage": "lead"
-          },
-          "lost_values": {}
-        }
-      }
-    },
-    {
-      "set": "tuned",
       "case": "same_last_domain",
-      "a": "T073",
-      "b": "T074",
+      "a": "T067",
+      "b": "T068",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3224,8 +3029,8 @@
     {
       "set": "tuned",
       "case": "same_last_company",
-      "a": "T075",
-      "b": "T076",
+      "a": "T069",
+      "b": "T070",
       "same_person": false,
       "note": "Family business; siblings.",
       "expected": {
@@ -3238,8 +3043,8 @@
     {
       "set": "tuned",
       "case": "same_first_domain",
-      "a": "T077",
-      "b": "T078",
+      "a": "T071",
+      "b": "T072",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3251,8 +3056,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain_diff_last",
-      "a": "T079",
-      "b": "T080",
+      "a": "T073",
+      "b": "T074",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3264,8 +3069,8 @@
     {
       "set": "tuned",
       "case": "shared_office_phone",
-      "a": "T081",
-      "b": "T082",
+      "a": "T075",
+      "b": "T076",
       "same_person": false,
       "note": "Office main line.",
       "expected": {
@@ -3278,8 +3083,8 @@
     {
       "set": "tuned",
       "case": "shared_office_phone",
-      "a": "T083",
-      "b": "T084",
+      "a": "T077",
+      "b": "T078",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3290,38 +3095,9 @@
     },
     {
       "set": "tuned",
-      "case": "shared_inbox",
-      "a": "T085",
-      "b": "T086",
-      "same_person": false,
-      "note": "The PRD's info@ case.",
-      "seed_check": "hubspot_email_unique",
-      "expected": {
-        "tier": "borderline",
-        "matched_on": "shared_inbox",
-        "model_called": true,
-        "proposed": false
-      }
-    },
-    {
-      "set": "tuned",
-      "case": "shared_inbox",
-      "a": "T087",
-      "b": "T088",
-      "same_person": false,
-      "seed_check": "hubspot_email_unique",
-      "expected": {
-        "tier": "borderline",
-        "matched_on": "shared_inbox",
-        "model_called": true,
-        "proposed": false
-      }
-    },
-    {
-      "set": "tuned",
       "case": "same_last_company",
-      "a": "T089",
-      "b": "T090",
+      "a": "T079",
+      "b": "T080",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3333,8 +3109,8 @@
     {
       "set": "tuned",
       "case": "same_last_domain",
-      "a": "T091",
-      "b": "T092",
+      "a": "T081",
+      "b": "T082",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3346,8 +3122,8 @@
     {
       "set": "tuned",
       "case": "same_first_company",
-      "a": "T093",
-      "b": "T094",
+      "a": "T083",
+      "b": "T084",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3359,8 +3135,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain_diff_last",
-      "a": "T095",
-      "b": "T096",
+      "a": "T085",
+      "b": "T086",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3372,8 +3148,8 @@
     {
       "set": "tuned",
       "case": "nickname_domain_diff_last",
-      "a": "T097",
-      "b": "T098",
+      "a": "T087",
+      "b": "T088",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3385,8 +3161,8 @@
     {
       "set": "tuned",
       "case": "similar_first_name",
-      "a": "T099",
-      "b": "T100",
+      "a": "T089",
+      "b": "T090",
       "same_person": false,
       "note": "Robin is not a Robert nickname.",
       "expected": {
@@ -3399,8 +3175,8 @@
     {
       "set": "tuned",
       "case": "similar_first_name",
-      "a": "T101",
-      "b": "T102",
+      "a": "T091",
+      "b": "T092",
       "same_person": false,
       "expected": {
         "tier": "borderline",
@@ -3412,8 +3188,8 @@
     {
       "set": "tuned",
       "case": "same_name_diff_company_phone",
-      "a": "T103",
-      "b": "T104",
+      "a": "T093",
+      "b": "T094",
       "same_person": false,
       "note": "The PRD listed this row as borderline; by the rule table it has no second signal, so it is not a candidate.",
       "expected": {
@@ -3426,8 +3202,8 @@
     {
       "set": "tuned",
       "case": "same_name_diff_company_phone",
-      "a": "T105",
-      "b": "T106",
+      "a": "T095",
+      "b": "T096",
       "same_person": false,
       "expected": {
         "tier": "none",
@@ -3439,8 +3215,8 @@
     {
       "set": "tuned",
       "case": "same_name_diff_company_phone",
-      "a": "T107",
-      "b": "T108",
+      "a": "T097",
+      "b": "T098",
       "same_person": false,
       "expected": {
         "tier": "none",
@@ -3452,8 +3228,8 @@
     {
       "set": "tuned",
       "case": "same_last_free_mail",
-      "a": "T109",
-      "b": "T110",
+      "a": "T099",
+      "b": "T100",
       "same_person": false,
       "note": "A free-mail domain is not a company domain.",
       "expected": {
@@ -3466,8 +3242,8 @@
     {
       "set": "tuned",
       "case": "similar_last_name",
-      "a": "T111",
-      "b": "T112",
+      "a": "T101",
+      "b": "T102",
       "same_person": false,
       "expected": {
         "tier": "none",
@@ -3479,8 +3255,8 @@
     {
       "set": "tuned",
       "case": "shared_phone_unrelated_names",
-      "a": "T113",
-      "b": "T114",
+      "a": "T103",
+      "b": "T104",
       "same_person": false,
       "expected": {
         "tier": "none",
@@ -3492,8 +3268,8 @@
     {
       "set": "tuned",
       "case": "same_domain_unrelated_names",
-      "a": "T115",
-      "b": "T116",
+      "a": "T105",
+      "b": "T106",
       "same_person": false,
       "expected": {
         "tier": "none",
@@ -3505,8 +3281,8 @@
     {
       "set": "tuned",
       "case": "known_miss_job_change",
-      "a": "T117",
-      "b": "T118",
+      "a": "T107",
+      "b": "T108",
       "same_person": true,
       "note": "Same person after a job change. No rule signal, so no proposal: a known recall limit, not scored as a miss.",
       "expected": {
@@ -3519,8 +3295,8 @@
     {
       "set": "tuned",
       "case": "known_miss_name_and_job",
-      "a": "T119",
-      "b": "T120",
+      "a": "T109",
+      "b": "T110",
       "same_person": true,
       "note": "Known recall limit.",
       "expected": {
@@ -3533,8 +3309,8 @@
     {
       "set": "tuned",
       "case": "shared_home_phone_family",
-      "a": "T121",
-      "b": "T122",
+      "a": "T111",
+      "b": "T112",
       "same_person": false,
       "note": "Father and son on one home line; Jr. is not in the data. Same name here would be a sure phone+last-name match.",
       "known_fail": "sure_rule_shared_phone",
@@ -3548,8 +3324,8 @@
     {
       "set": "tuned",
       "case": "shared_office_phone_same_last",
-      "a": "T123",
-      "b": "T124",
+      "a": "T113",
+      "b": "T114",
       "same_person": false,
       "note": "Two unrelated Nguyens on one office line.",
       "known_fail": "sure_rule_shared_phone",
@@ -4173,7 +3949,7 @@
       "proposal_id": "merge:T031:T032",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T031",
         "T032"
@@ -4183,7 +3959,7 @@
       "proposal_id": "merge:T033:T034",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T033",
         "T034"
@@ -4347,36 +4123,6 @@
       "records": [
         "T065",
         "T066"
-      ]
-    },
-    {
-      "proposal_id": "merge:T067:T068",
-      "kind": "merge",
-      "set": "tuned",
-      "tier": "borderline",
-      "records": [
-        "T067",
-        "T068"
-      ]
-    },
-    {
-      "proposal_id": "merge:T069:T070",
-      "kind": "merge",
-      "set": "tuned",
-      "tier": "borderline",
-      "records": [
-        "T069",
-        "T070"
-      ]
-    },
-    {
-      "proposal_id": "merge:T071:T072",
-      "kind": "merge",
-      "set": "tuned",
-      "tier": "borderline",
-      "records": [
-        "T071",
-        "T072"
       ]
     },
     {
