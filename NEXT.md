@@ -10,7 +10,7 @@ N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KI
 - SETUP.md.
 
 ## Left
-1. **Error alert from a scheduled run, NOT verified.** CLI runs do not trigger error workflows. Needs n8n running, nightly published, one forced failure (e.g. break a credential on a copy), confirm one alert email and the error row. Same method as N1 NEXT.md.
+1. **Error alert from a scheduled run: VERIFIED 2026-11-03.** A published every-minute throwaway with `errorWorkflow: n1ErrorHandler01` failed; the handler ran (success) and its "Alert owner" Gmail node executed (execution data). Mailbox receipt not checked. Throwaway deleted.
 2. **DEMO.md**: screen by screen, accounts, what to concede; run every command in it first (CLAUDE.md). Concede: lifecyclestage tasks never fire live (HubSpot fills it, cause inferred not proven), Google OAuth lapses every 7 days, no accepted rows means no apply run_log row.
 3. **Closure** (CLAUDE.md): exec brief via `exec-brief`, LinkedIn posts in the Ledger, cost review (the nightly run + 53 Claude calls per fresh scan, n8n local so no Vercel/Neon), record artifact URLs here.
 
