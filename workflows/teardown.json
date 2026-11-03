@@ -80,11 +80,23 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle notes 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Search notes 2",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
+        1100,
         0
       ],
       "parameters": {
@@ -109,7 +121,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1100,
+        1320,
         0
       ],
       "parameters": {
@@ -121,7 +133,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1320,
+        1540,
         0
       ],
       "parameters": {
@@ -142,11 +154,23 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle notes 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Search notes 3",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1540,
+        1980,
         0
       ],
       "parameters": {
@@ -171,7 +195,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1760,
+        2200,
         0
       ],
       "parameters": {
@@ -183,7 +207,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1980,
+        2420,
         0
       ],
       "parameters": {
@@ -204,69 +228,19 @@
       "onError": "continueRegularOutput"
     },
     {
-      "name": "Search deals 1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        2200,
-        0
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.hubapi.com/crm/v3/objects/deals/search",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "hubspotAppToken",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"dealname\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"dealname\"], \"limit\": 100}"
-      },
-      "credentials": {
-        "hubspotAppToken": {
-          "id": "u1WBi64R7zas6Zfn",
-          "name": "HubSpot Service Key account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "name": "Pick deals 1",
-      "type": "n8n-nodes-base.code",
+      "name": "Settle notes 3",
+      "type": "n8n-nodes-base.wait",
       "typeVersion": 2,
-      "position": [
-        2420,
-        0
-      ],
-      "parameters": {
-        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.dealname && p.dealname.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
-      }
-    },
-    {
-      "name": "Archive deals 1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
       "position": [
         2640,
         0
       ],
       "parameters": {
-        "method": "POST",
-        "url": "https://api.hubapi.com/crm/v3/objects/deals/batch/archive",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "hubspotAppToken",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
-      },
-      "credentials": {
-        "hubspotAppToken": {
-          "id": "u1WBi64R7zas6Zfn",
-          "name": "HubSpot Service Key account"
-        }
-      },
-      "onError": "continueRegularOutput"
+        "amount": 20
+      }
     },
     {
-      "name": "Search deals 2",
+      "name": "Search deals 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -291,7 +265,7 @@
       "onError": "continueRegularOutput"
     },
     {
-      "name": "Pick deals 2",
+      "name": "Pick deals 1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -303,7 +277,7 @@
       }
     },
     {
-      "name": "Archive deals 2",
+      "name": "Archive deals 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -328,11 +302,97 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle deals 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
+      "name": "Search deals 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3740,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"dealname\", \"operator\": \"CONTAINS_TOKEN\", \"value\": \"demo\"}]}], \"properties\": [\"dealname\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick deals 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.dealname && p.dealname.startsWith('[demo]'); }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive deals 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4180,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Settle deals 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Search deals 3",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3520,
+        4620,
         0
       ],
       "parameters": {
@@ -357,7 +417,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3740,
+        4840,
         0
       ],
       "parameters": {
@@ -369,7 +429,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3960,
+        5060,
         0
       ],
       "parameters": {
@@ -390,131 +450,19 @@
       "onError": "continueRegularOutput"
     },
     {
-      "name": "Search contacts 1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        4180,
-        0
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "hubspotAppToken",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
-      },
-      "credentials": {
-        "hubspotAppToken": {
-          "id": "u1WBi64R7zas6Zfn",
-          "name": "HubSpot Service Key account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "name": "Pick contacts 1",
-      "type": "n8n-nodes-base.code",
+      "name": "Settle deals 3",
+      "type": "n8n-nodes-base.wait",
       "typeVersion": 2,
-      "position": [
-        4400,
-        0
-      ],
-      "parameters": {
-        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
-      }
-    },
-    {
-      "name": "Archive contacts 1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        4620,
-        0
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "hubspotAppToken",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
-      },
-      "credentials": {
-        "hubspotAppToken": {
-          "id": "u1WBi64R7zas6Zfn",
-          "name": "HubSpot Service Key account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "name": "Search contacts 2",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        4840,
-        0
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "hubspotAppToken",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
-      },
-      "credentials": {
-        "hubspotAppToken": {
-          "id": "u1WBi64R7zas6Zfn",
-          "name": "HubSpot Service Key account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "name": "Pick contacts 2",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        5060,
-        0
-      ],
-      "parameters": {
-        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
-      }
-    },
-    {
-      "name": "Archive contacts 2",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
       "position": [
         5280,
         0
       ],
       "parameters": {
-        "method": "POST",
-        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "hubspotAppToken",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
-      },
-      "credentials": {
-        "hubspotAppToken": {
-          "id": "u1WBi64R7zas6Zfn",
-          "name": "HubSpot Service Key account"
-        }
-      },
-      "onError": "continueRegularOutput"
+        "amount": 20
+      }
     },
     {
-      "name": "Search contacts 3",
+      "name": "Search contacts 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -539,7 +487,7 @@
       "onError": "continueRegularOutput"
     },
     {
-      "name": "Pick contacts 3",
+      "name": "Pick contacts 1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -551,7 +499,7 @@
       }
     },
     {
-      "name": "Archive contacts 3",
+      "name": "Archive contacts 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -576,11 +524,171 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle contacts 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        6160,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
+      "name": "Search contacts 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6380,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick contacts 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6600,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive contacts 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6820,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Settle contacts 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        7040,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
+      "name": "Search contacts 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7260,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"filterGroups\": [{\"filters\": [{\"propertyName\": \"demo_record\", \"operator\": \"EQ\", \"value\": \"true\"}]}], \"properties\": [\"demo_record\"], \"limit\": 100}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Pick contacts 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const ids = ($json.results || []).filter(r => { const p = r.properties; return p.demo_record === 'true'; }).map(r => ({ id: r.id }));\nreturn [{ json: { inputs: ids } }];"
+      }
+    },
+    {
+      "name": "Archive contacts 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7700,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/archive",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ inputs: $json.inputs }) }}"
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Settle contacts 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        7920,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Search companies 1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6160,
+        8140,
         0
       ],
       "parameters": {
@@ -605,7 +713,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6380,
+        8360,
         0
       ],
       "parameters": {
@@ -617,7 +725,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6600,
+        8580,
         0
       ],
       "parameters": {
@@ -638,11 +746,23 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle companies 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        8800,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Search companies 2",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6820,
+        9020,
         0
       ],
       "parameters": {
@@ -667,7 +787,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        7040,
+        9240,
         0
       ],
       "parameters": {
@@ -679,7 +799,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        7260,
+        9460,
         0
       ],
       "parameters": {
@@ -700,11 +820,23 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle companies 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        9680,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Search companies 3",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        7480,
+        9900,
         0
       ],
       "parameters": {
@@ -729,7 +861,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        7700,
+        10120,
         0
       ],
       "parameters": {
@@ -741,7 +873,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        7920,
+        10340,
         0
       ],
       "parameters": {
@@ -762,11 +894,23 @@
       "onError": "continueRegularOutput"
     },
     {
+      "name": "Settle companies 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 2,
+      "position": [
+        10560,
+        0
+      ],
+      "parameters": {
+        "amount": 20
+      }
+    },
+    {
       "name": "Report",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        8140,
+        10780,
         0
       ],
       "parameters": {
@@ -812,6 +956,17 @@
       "main": [
         [
           {
+            "node": "Settle notes 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle notes 1": {
+      "main": [
+        [
+          {
             "node": "Search notes 2",
             "type": "main",
             "index": 0
@@ -842,6 +997,17 @@
       ]
     },
     "Archive notes 2": {
+      "main": [
+        [
+          {
+            "node": "Settle notes 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle notes 2": {
       "main": [
         [
           {
@@ -878,6 +1044,17 @@
       "main": [
         [
           {
+            "node": "Settle notes 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle notes 3": {
+      "main": [
+        [
+          {
             "node": "Search deals 1",
             "type": "main",
             "index": 0
@@ -908,6 +1085,17 @@
       ]
     },
     "Archive deals 1": {
+      "main": [
+        [
+          {
+            "node": "Settle deals 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle deals 1": {
       "main": [
         [
           {
@@ -944,6 +1132,17 @@
       "main": [
         [
           {
+            "node": "Settle deals 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle deals 2": {
+      "main": [
+        [
+          {
             "node": "Search deals 3",
             "type": "main",
             "index": 0
@@ -974,6 +1173,17 @@
       ]
     },
     "Archive deals 3": {
+      "main": [
+        [
+          {
+            "node": "Settle deals 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle deals 3": {
       "main": [
         [
           {
@@ -1010,6 +1220,17 @@
       "main": [
         [
           {
+            "node": "Settle contacts 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle contacts 1": {
+      "main": [
+        [
+          {
             "node": "Search contacts 2",
             "type": "main",
             "index": 0
@@ -1040,6 +1261,17 @@
       ]
     },
     "Archive contacts 2": {
+      "main": [
+        [
+          {
+            "node": "Settle contacts 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle contacts 2": {
       "main": [
         [
           {
@@ -1076,6 +1308,17 @@
       "main": [
         [
           {
+            "node": "Settle contacts 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle contacts 3": {
+      "main": [
+        [
+          {
             "node": "Search companies 1",
             "type": "main",
             "index": 0
@@ -1106,6 +1349,17 @@
       ]
     },
     "Archive companies 1": {
+      "main": [
+        [
+          {
+            "node": "Settle companies 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle companies 1": {
       "main": [
         [
           {
@@ -1142,6 +1396,17 @@
       "main": [
         [
           {
+            "node": "Settle companies 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle companies 2": {
+      "main": [
+        [
+          {
             "node": "Search companies 3",
             "type": "main",
             "index": 0
@@ -1172,6 +1437,17 @@
       ]
     },
     "Archive companies 3": {
+      "main": [
+        [
+          {
+            "node": "Settle companies 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settle companies 3": {
       "main": [
         [
           {

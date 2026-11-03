@@ -73,6 +73,7 @@ for obj, flt, keep, prop in TYPES:
         http(f"Search {t}", obj, "search", "=" + json.dumps({"filterGroups": [{"filters": [flt]}], "properties": [prop], "limit": 100}))
         code(f"Pick {t}", f"const ids = ($json.results || []).filter(r => {{ const p = r.properties; return {keep}; }}).map(r => ({{ id: r.id }}));\nreturn [{{ json: {{ inputs: ids }} }}];")
         http(f"Archive {t}", obj, "batch/archive", "={{ JSON.stringify({ inputs: $json.inputs }) }}")  # an empty batch is refused; continueRegularOutput lets the chain go on
+        add(f"Settle {t}", "n8n-nodes-base.wait", {"amount": 20})  # search lags archives: 3 passes back to back found nothing after the first (2026-11-03). CLI waits must stay <= 60 s
 code("Report", "return [{ json: { archived: ['notes','deals','contacts','companies'].map(o => [o, [1,2,3].reduce((n, i) => n + ($('Pick ' + o + ' ' + i).first().json.inputs.length), 0)]) } }];")
 json.dump(dict(id="n2TeardownDemo01", name="N2 teardown demo data", active=False, settings={"executionOrder": "v1"}, pinData={}, nodes=nodes, connections=conn), open(root / "workflows/teardown.json", "w"), indent=2)
 print("teardown", len(nodes), "nodes")
