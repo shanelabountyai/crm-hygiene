@@ -6,7 +6,7 @@ Tallgrass Advisory is fictional and every record is marked `[demo]` or `demo_rec
 - n8n **stopped** for CLI steps, **running** for editor steps. Start: `PATH=$HOME/.n8n-runtime/node_modules/.bin:$PATH N8N_USER_FOLDER=$HOME/.n8n-speed-to-lead n8n start` (http://localhost:5678).
 - Google OAuth lapses every 7 days (last reconnected 2026-10-29): if a Sheets node says unauthorized, reconnect it under Credentials.
 - Sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/edit . Credentials live in n8n (HubSpot service key, Google Sheets, Anthropic), none in the repo.
-- Fresh slate, n8n stopped: `scripts/eval.sh` (teardown, seed, nightly run, scoring; about 10 minutes, ends `EVAL PASS`).
+- Fresh slate, n8n stopped: `scripts/eval.sh` (teardown, seed, nightly run, scoring; ends `EVAL PASS`).
 
 ## Screens
 1. **The mess (HubSpot).** Contacts filtered to `demo_record = true`: 161 seeded records, near-duplicates, missing owners and companies, 12 deals. Say: this is what a CRM looks like after two years.
