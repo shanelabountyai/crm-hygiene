@@ -1,0 +1,14 @@
+{
+  "id": "n2DevSheetDrop001",
+  "name": "Dev: decision dropdown on proposals",
+  "nodes": [
+    { "parameters": {}, "name": "Run once", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [0, 0] },
+    { "parameters": { "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw?fields=sheets.properties", "authentication": "predefinedCredentialType", "nodeCredentialType": "googleSheetsOAuth2Api" },
+      "name": "Tabs", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [220, 0], "credentials": { "googleSheetsOAuth2Api": { "id": "McOy4auCNkFX0Os2", "name": "Google Sheets account" } } },
+    { "parameters": { "method": "POST", "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw:batchUpdate", "authentication": "predefinedCredentialType", "nodeCredentialType": "googleSheetsOAuth2Api", "sendBody": true, "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ requests: [{ setDataValidation: { range: { sheetId: $json.sheets.find(s => s.properties.title === 'proposals').properties.sheetId, startRowIndex: 1, startColumnIndex: 9, endColumnIndex: 10 }, rule: { condition: { type: 'ONE_OF_LIST', values: [{ userEnteredValue: 'accept' }, { userEnteredValue: 'reject' }] }, showCustomUi: true, strict: true } } }] }) }}" },
+      "name": "Dropdown", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [440, 0], "credentials": { "googleSheetsOAuth2Api": { "id": "McOy4auCNkFX0Os2", "name": "Google Sheets account" } } }
+  ],
+  "connections": { "Run once": { "main": [[{ "node": "Tabs", "type": "main", "index": 0 }]] }, "Tabs": { "main": [[{ "node": "Dropdown", "type": "main", "index": 0 }]] } },
+  "active": false, "settings": { "executionOrder": "v1" }, "pinData": {}
+}
