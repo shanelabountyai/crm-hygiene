@@ -1,0 +1,279 @@
+{
+  "id": "n2DetectScan0001",
+  "name": "N2 detect (scan, no HubSpot writes)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,phone,company,jobtitle,lifecyclestage,hubspot_owner_id,createdate,demo_record&associations=companies",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ $response.body.paging?.next?.link }}",
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.paging?.next?.link }}",
+              "limitPagesFetched": false
+            }
+          }
+        }
+      },
+      "name": "Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "executeOnce": false,
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/deals?limit=100&properties=dealname,dealstage,hubspot_owner_id,notes_last_updated,createdate&associations=contacts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ $response.body.paging?.next?.link }}",
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.paging?.next?.link }}",
+              "limitPagesFetched": false
+            }
+          }
+        }
+      },
+      "name": "Deals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        0
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/companies?limit=100&properties=name",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "responseContainsNextURL",
+              "nextURL": "={{ $response.body.paging?.next?.link }}",
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.paging?.next?.link }}",
+              "limitPagesFetched": false
+            }
+          }
+        }
+      },
+      "name": "Companies",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/proposals!A2:A"
+      },
+      "name": "Existing proposals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        0
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rule-only detectors (PRD rule tables). Pure: no I/O, so the same file runs in the n8n Code node and in check.js.\n// rules = {match, nicknames, required_fields, stale} as in rules/*.json. Contacts: {id, firstname, lastname, email, phone, company, jobtitle, lifecyclestage, hubspot_owner_id, associated_company?}.\n// Deals: {id, dealstage, hubspot_owner_id, last_activity (ms), contact?}. Companies: {id, name}.\nconst DAY = 86400000;\nfunction prep(rules) {\n  const M = Object.fromEntries(rules.match.map(r => [r.key, r.value.split(\"|\")]));\n  return {\n    FREE: new Set(M.free_mail_domains), DOTLESS: new Set(M.dot_insensitive_domains), SHARED: new Set(M.shared_inbox_locals), SUFFIX: new Set(M.company_suffixes),\n    NICK: rules.nicknames.map(r => new Set(r.names.split(\"|\"))), REQ: rules.required_fields, STALE: Object.fromEntries(rules.stale.map(r => [r.stage, r])),\n  };\n}\nconst lc = s => (s || \"\").toLowerCase();\nfunction make(R) {\n  const nemail = e => { let [loc, dom] = lc(e).split(\"@\"); loc = loc.split(\"+\")[0]; return (R.DOTLESS.has(dom) ? loc.replace(/\\./g, \"\") : loc) + \"@\" + dom; };\n  const nphone = p => { const d = (p || \"\").replace(/\\D/g, \"\"); return d.length === 11 && d[0] === \"1\" ? d.slice(1) : d; };\n  const ncompany = s => { const t = lc(s).replace(/&/g, \" and \").replace(/[^a-z0-9 ]/g, \" \").split(/\\s+/).filter(Boolean); while (t.length && R.SUFFIX.has(t[t.length - 1])) t.pop(); return t.join(\" \"); };\n  const domain = c => { const d = lc(c.email).split(\"@\")[1] || \"\"; return R.FREE.has(d) ? \"\" : d; };\n  const firstEq = (a, b) => { a = lc(a); b = lc(b); return a === b || R.NICK.some(s => s.has(a) && s.has(b)); };\n  function tier(a, b) {\n    const ea = nemail(a.email), eb = nemail(b.email), pa = nphone(a.phone), pb = nphone(b.phone);\n    const sameLast = lc(a.lastname) === lc(b.lastname), samePhone = pa !== \"\" && pa === pb;\n    if (ea === eb) return R.SHARED.has(ea.split(\"@\")[0]) ? [\"borderline\", \"shared_inbox\"] : [\"sure\", \"email\"];\n    if (samePhone && sameLast) return [\"sure\", \"phone_and_last_name\"];\n    if (sameLast || firstEq(a.firstname, b.firstname)) {\n      const ev = [];\n      if (domain(a) !== \"\" && domain(a) === domain(b)) ev.push(\"company_domain\");\n      if (samePhone) ev.push(\"phone\");\n      if (ncompany(a.company) !== \"\" && ncompany(a.company) === ncompany(b.company)) ev.push(\"company_name\");\n      if (ev.length) return [\"borderline\", [sameLast ? \"last_name\" : \"first_name\", ...ev].join(\"+\")];\n    }\n    return [\"none\", \"\"];\n  }\n  const blocks = c => [[\"last\", lc(c.lastname)], [\"phone\", nphone(c.phone)], [\"domain\", lc(c.email).split(\"@\")[1] || \"\"], [\"company\", ncompany(c.company)]]\n    .filter(([k, v]) => v !== \"\").map(([k, v]) => k + \":\" + v);\n  return { tier, blocks, nemail, nphone, ncompany };\n}\n// Contacts are compared only inside a shared blocking key; ids are ordered so the older (lower position in input) record is the primary.\nfunction duplicates(contacts, R) {\n  const { tier, blocks } = make(R), idx = new Map();\n  contacts.forEach((c, i) => blocks(c).forEach(k => (idx.get(k) || idx.set(k, []).get(k)).push(i)));\n  const seen = new Set(), out = [];\n  for (const ix of idx.values()) for (let x = 0; x < ix.length; x++) for (let y = x + 1; y < ix.length; y++) {\n    const [i, j] = [ix[x], ix[y]], key = i + \":\" + j;\n    if (seen.has(key)) continue; seen.add(key);\n    const [t, why] = tier(contacts[i], contacts[j]);\n    if (t !== \"none\") out.push({ a: contacts[i].id, b: contacts[j].id, tier: t, matched_on: why });\n  }\n  return out;\n}\nfunction fills(contacts, deals, companies, R) {\n  const co = new Map(companies.map(c => [c.id, c])), openDeals = new Map();\n  for (const d of deals) if (d.contact && R.STALE[d.dealstage]?.closed === \"false\" && d.hubspot_owner_id) (openDeals.get(d.contact) || openDeals.set(d.contact, []).get(d.contact)).push(d);\n  const out = [];\n  for (const c of contacts) for (const r of R.REQ) {\n    if (c[r.field]) continue;\n    let val, src;\n    if (r.derive === \"open_deal_owner\") { src = (openDeals.get(c.id) || [])[0]; val = src && src.hubspot_owner_id; }\n    else if (r.derive === \"associated_company_name\" && c.associated_company) { src = co.get(c.associated_company); val = src && src.name; }\n    out.push(val ? { id: `fill:${c.id}:${r.field}`, kind: \"fill\", records: [c.id], field: r.field, value: val, source: src.id }\n                 : { id: `missing_task:${c.id}:${r.field}`, kind: \"missing_task\", records: [c.id], field: r.field });\n  }\n  return out;\n}\nfunction stale(deals, R, now) {\n  return deals.filter(d => { const s = R.STALE[d.dealstage]; return s && s.closed === \"false\" && Math.floor((now - d.last_activity) / DAY) > Number(s.max_idle_days); })\n    .map(d => ({ id: `stale_task:${d.id}`, kind: \"stale_task\", records: [d.id], owner: d.hubspot_owner_id }));\n}\n\n\nconst R = prep({\"match\":[{\"key\":\"free_mail_domains\",\"value\":\"gmail.example.com|yahoo.example.com\"},{\"key\":\"dot_insensitive_domains\",\"value\":\"gmail.example.com\"},{\"key\":\"shared_inbox_locals\",\"value\":\"info|sales|hello\"},{\"key\":\"company_suffixes\",\"value\":\"inc|llc|llp|ltd|co|corp|corporation|company\"},{\"key\":\"lifecycle_order\",\"value\":\"subscriber|lead|marketingqualifiedlead|salesqualifiedlead|opportunity|customer|evangelist|other\"}],\"nicknames\":[{\"names\":\"robert|bob|rob|bobby\"},{\"names\":\"william|bill|will|billy\"},{\"names\":\"james|jim|jimmy\"},{\"names\":\"elizabeth|liz|beth|betsy\"},{\"names\":\"katherine|kathryn|catherine|kate|katie|kathy\"},{\"names\":\"michael|mike|mikey\"},{\"names\":\"thomas|tom|tommy\"},{\"names\":\"david|dave\"},{\"names\":\"jennifer|jen|jenny\"},{\"names\":\"anthony|tony\"},{\"names\":\"margaret|peggy|maggie|meg\"},{\"names\":\"richard|rick|dick\"},{\"names\":\"daniel|dan|danny\"},{\"names\":\"samuel|sam\"},{\"names\":\"samantha|sam\"},{\"names\":\"alexander|alex\"},{\"names\":\"alexandra|alex\"},{\"names\":\"susan|sue|suzy\"},{\"names\":\"joseph|joe|joey\"}],\"required_fields\":[{\"object\":\"contact\",\"field\":\"hubspot_owner_id\",\"derive\":\"open_deal_owner\"},{\"object\":\"contact\",\"field\":\"company\",\"derive\":\"associated_company_name\"},{\"object\":\"contact\",\"field\":\"lifecyclestage\",\"derive\":\"\"}],\"stale\":[{\"stage\":\"appointmentscheduled\",\"max_idle_days\":14,\"closed\":\"false\"},{\"stage\":\"qualifiedtobuy\",\"max_idle_days\":21,\"closed\":\"false\"},{\"stage\":\"presentationscheduled\",\"max_idle_days\":14,\"closed\":\"false\"},{\"stage\":\"decisionmakerboughtin\",\"max_idle_days\":21,\"closed\":\"false\"},{\"stage\":\"contractsent\",\"max_idle_days\":10,\"closed\":\"false\"},{\"stage\":\"closedwon\",\"max_idle_days\":\"\",\"closed\":\"true\"},{\"stage\":\"closedlost\",\"max_idle_days\":\"\",\"closed\":\"true\"}]});\nconst pages = n => [...new Map($(n).all().flatMap(i => i.json.results || []).map(o => [o.id, o])).values()];\nconst created = (a, b) => Date.parse(a.properties.createdate) - Date.parse(b.properties.createdate) || Number(a.id) - Number(b.id);\nconst first = (o, k) => o.associations?.[k]?.results?.[0]?.id;\n// Demo guard: only seeded records are scanned; the portal also holds real contacts and deals.\nconst contacts = pages(\"Contacts\").filter(o => o.properties.demo_record === \"true\").sort(created).map(o => ({ ...o.properties, id: o.id, associated_company: first(o, \"companies\") }));\nconst dealObjs = pages(\"Deals\").filter(o => (o.properties.dealname || \"\").startsWith(\"[demo]\"));\nconst deals = dealObjs.map(o => ({ ...o.properties, id: o.id, contact: first(o, \"contacts\"), last_activity: Date.parse(o.properties.notes_last_updated || o.properties.createdate) }));\nconst companies = pages(\"Companies\").map(o => ({ id: o.id, name: o.properties.name }));\nconst found = [\n  ...duplicates(contacts, R).map(d => ({ id: \"merge:\" + d.a + \":\" + d.b, kind: \"merge\", records: [d.a, d.b], tier: d.tier, matched_on: d.matched_on })),\n  ...fills(contacts, deals, companies, R), ...stale(deals, R, Date.now()),\n];\nconst have = new Set(($(\"Existing proposals\").first().json.values || []).map(r => r[0]));\nconst runId = \"run-\" + new Date().toISOString(), started = $(\"Run once\").first().json.started || runId.slice(4);\nconst rows = found.filter(p => !have.has(p.id)).map(p => [p.id, runId, p.kind, p.records.join(\",\"), p.field || \"\", p.value || \"\", p.matched_on || \"\", p.tier || \"\", \"\", \"\", \"pending\"]);\nconst n = k => found.filter(p => p.kind === k).length;\nreturn [{ json: { proposals: rows, run: [runId, started, new Date().toISOString(), contacts.length, deals.length, rows.length, found.filter(p => p.tier === \"sure\").length, found.filter(p => p.tier === \"borderline\").length, n(\"fill\"), n(\"missing_task\"), n(\"stale_task\"), \"ok\"] } }];"
+      },
+      "name": "Detect",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/proposals!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: $('Detect').first().json.proposals }) }}"
+      },
+      "name": "Append proposals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/run_log!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: [$('Detect').first().json.run] }) }}"
+      },
+      "name": "Append run_log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        0
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts": {
+      "main": [
+        [
+          {
+            "node": "Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deals": {
+      "main": [
+        [
+          {
+            "node": "Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Companies": {
+      "main": [
+        [
+          {
+            "node": "Existing proposals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing proposals": {
+      "main": [
+        [
+          {
+            "node": "Detect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect": {
+      "main": [
+        [
+          {
+            "node": "Append proposals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append proposals": {
+      "main": [
+        [
+          {
+            "node": "Append run_log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
