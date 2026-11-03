@@ -28,7 +28,7 @@ return [{ json: { data: $input.all().map((r, i) => {
 const wf = {
   id: "n2JudgeBorderln01", name: "N2 judge (borderline merges, rationale only)", active: false, settings: { executionOrder: "v1" }, pinData: {},
   nodes: [
-    { parameters: {}, name: "Run once", type: "n8n-nodes-base.manualTrigger", typeVersion: 1, position: [0, 0] },
+    { parameters: { inputSource: "passthrough" }, name: "Run once", type: "n8n-nodes-base.executeWorkflowTrigger", typeVersion: 1.1, position: [0, 0] },
     gs("Proposals", { url: SHEET + "proposals!A2:K" }, 200),
     { parameters: { jsCode: pairs }, name: "Pairs", type: "n8n-nodes-base.code", typeVersion: 2, position: [400, 0] },
     { parameters: { method: "POST", url: "https://api.hubapi.com/crm/v3/objects/contacts/batch/read", authentication: "predefinedCredentialType", nodeCredentialType: "hubspotAppToken", sendBody: true, specifyBody: "json",

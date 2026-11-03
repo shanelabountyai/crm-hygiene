@@ -34,7 +34,7 @@ const link = (a, b) => [a, { main: [[{ node: b, type: "main", index: 0 }]] }];
 const wf = {
   id: "n2DetectScan0001", name: "N2 detect (scan, no HubSpot writes)", active: false, settings: { executionOrder: "v1" }, pinData: {},
   nodes: [
-    { parameters: {}, name: "Run once", type: "n8n-nodes-base.manualTrigger", typeVersion: 1, position: [0, 0] },
+    { parameters: { inputSource: "passthrough" }, name: "Run once", type: "n8n-nodes-base.executeWorkflowTrigger", typeVersion: 1.1, position: [0, 0] },
     hs("Contacts", "contacts", "firstname,lastname,email,phone,company,jobtitle,lifecyclestage,hubspot_owner_id,createdate,demo_record", "companies", 200),
     hs("Deals", "deals", "dealname,dealstage,hubspot_owner_id,notes_last_updated,createdate", "contacts", 400),
     hs("Companies", "companies", "name", "", 600),

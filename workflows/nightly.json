@@ -1,0 +1,145 @@
+{
+  "id": "n2Nightly0000001",
+  "name": "N2 nightly (apply, detect, judge)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "n1ErrorHandler01"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 2
+            }
+          ]
+        }
+      },
+      "name": "Nightly 02:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "n2ApplyAccepted1",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Apply",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "n2DetectScan0001",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Detect",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "n2JudgeBorderln01",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "name": "Judge",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        0
+      ],
+      "alwaysOutputData": true
+    }
+  ],
+  "connections": {
+    "Nightly 02:00": {
+      "main": [
+        [
+          {
+            "node": "Apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Apply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply": {
+      "main": [
+        [
+          {
+            "node": "Detect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect": {
+      "main": [
+        [
+          {
+            "node": "Judge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

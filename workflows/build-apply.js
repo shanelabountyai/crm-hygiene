@@ -44,7 +44,7 @@ const n = k => s.filter(v => v === k).length;
 return [{ json: { values: [[t.runId, t.started, new Date().toISOString(), "", "", "", "", "", "", "", "", "apply", n("applied"), n("stale_skipped"), n("already_merged"), n("failed"), n("guard_refused"), t.reject.length]] } }];`;
 
 const nodes = [
-  node("Run once", "n8n-nodes-base.manualTrigger", {}),
+  node("Run once", "n8n-nodes-base.executeWorkflowTrigger", { inputSource: "passthrough" }, { typeVersion: 1.1 }),
   gs("Proposals", { url: SHEET + "/proposals!A2:M" }, { executeOnce: true }),
   hs("Props contacts", { url: API + "properties/contacts" }, { executeOnce: true }),
   hs("Props deals", { url: API + "properties/deals" }, { executeOnce: true }),
