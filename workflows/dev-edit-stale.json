@@ -1,0 +1,58 @@
+{
+  "id": "n2DevEditStale01",
+  "name": "Dev: edit one demo contact after the scan (stale test, one-off)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/584012675772",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"properties\": {\"jobtitle\": \"Edited after scan (apply test)\"}}"
+      },
+      "name": "Edit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Edit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

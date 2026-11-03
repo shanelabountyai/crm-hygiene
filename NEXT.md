@@ -1,28 +1,36 @@
 # Next
 
-**Phase 1: scan, no writes.** PRD: https://claude.ai/artifact/BQBBTKvzCcAysjsWzFdTFg
+**Phase 3 (Apply) DONE 2026-11-03. Next: Capstone.** PRD: https://claude.ai/artifact/BQBBTKvzCcAysjsWzFdTFg
 
-Done 2026-11-02: N1 teardown, PRD Q1/Q2 answered, `fixtures/build.py` + `rules/*.json` + `fixtures/n2-fixtures.json` (held-out pairs committed before any run). Details and three fixture decisions: `docs/PHASE1_FINDINGS.md` → Fixtures.
+(The PRD numbers phases 1 Scan, 2 Borderline judging, 3 Apply, 4 Capstone; earlier notes called Apply "Phase 2".)
 
-**Pick up here:**
+N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/edit (tabs `proposals` A:M, `snapshots` A:F, `run_log` A:R).
 
-Google OAuth verified 2026-11-03 (CLI run of `n2DevSheetHeaders1` wrote the `snapshots` and `run_log` headers; credential `McOy4auCNkFX0Os2`; n8n was stopped, start it again when needed). Tabs `proposals`, `snapshots`, `run_log` all exist with headers; `decision` dropdown done.
+**Pick up here: Capstone** (PRD Phasing 4): one published nightly workflow = apply then scan then judge (PRD Flow), N1 error workflow attached, an error alert from a scheduled run, `scripts/eval.sh` (P0-10: teardown, seed, scan, score; tuned and held-out reported apart), SETUP.md, DEMO.md. Then the closure deliverables (CLAUDE.md: DEMO.md, exec brief, LinkedIn posts, cost review).
 
-N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/edit (ID `1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw`), three tabs.
+## Done 2026-11-03 (this session)
+- **Sure tier is email-only (Shane decided).** Walter Brennan Sr/Jr share first, last and phone, so no phone rule can be sure. Shared phone now goes borderline; the judge called all 8 real phone pairs `likely_duplicate`, Walter `unsure`, the Nguyens `likely_not_duplicate`. `known_fail` is retired; `detect/check.js` has zero sure-tier false merges. PRD updated.
+- **Apply:** `node workflows/build-apply.js` builds `workflows/apply.json` (id `n2ApplyAccepted1`). Logic in `detect/apply.js` (pure), gate `node detect/check-apply.js`. One proposal per loop pass: GET each record (a merged-away id answers with the survivor), decide (`stale_skipped` / `already_merged` / `guard_refused` / apply), full-property batch read, snapshot row, HubSpot write, status + applied_at. A snapshot append failure stops the run before the write. Tasks are subject `[demo] ...`, owner from the record or 95417437.
+- **Stale check = fingerprint** in column M (`basis`), not `hs_lastmodifieddate` (decision in PRD). Detect upserts: reopens `stale_skipped` rows and rejected rows whose fingerprint changed; everything else is left alone.
+- Judge chunks its HubSpot batch read (53 borderline pairs = 106 contacts broke the 100-id read).
+- Teardown archives `[demo]` tasks first (regenerated from `fixtures/gen_seed.py`; not run since).
+- **Live verification (CLI runs):** reset sheet, scan 74 rows (11 sure, 53 borderline), judge 53, rescan adds 0. Covering test set (`workflows/dev-mark-test.json`): apply run 1 = 9 applied (2 merges: Jonah Pierce, Dana Whitfield; 3 fills; 3 missing-field tasks; 1 stale-deal task), 1 stale_skipped (contact edited after scan by `dev-edit-stale.json`), 1 rejected, 11 snapshot rows each before its write. Run 2 after `dev-reopen-row2.json` = 1 already_merged, no writes. Rescan reopens the stale row with a new fingerprint and adds nothing (159 contacts).
 
-1. **Seed done 2026-11-03.** Portal holds 161 contacts (`demo_record=true`), 12 `[demo]` deals, 11 back-dated notes, company CO1 (Larkspur Analytics, 1 associated contact: M004, so contact->company type 1 works). The companies scope fix took effect once saved on key 55871605 (`labintelligence`). CO1 and M004 were added by a one-off run, so a clean re-seed is teardown then `workflows/seed.json`. `workflows/teardown.json` takes several minutes (3 passes, 20 s settles) and lacks tasks. Checked 2026-11-03: all 12 deals' `notes_last_updated` match `idle_days` (seed time 19:17Z); D10 has none, as intended.
-2. (superseded: teardown is above)
-3. **Detect workflow DONE 2026-11-03.** `node workflows/build-detect.js` builds `workflows/detect.json` (id `n2DetectScan0001`: 3 paginated HubSpot reads, existing proposal ids from the sheet, one Code node = `detect.js` + `rules/*.json`, append to `proposals` and `run_log`; no HubSpot writes). Scoped to `demo_record=true` contacts and `[demo]` deals (portal also holds real records). CLI run: 161 contacts, 12 deals, 74 proposals (64 merges: 21 sure incl. the 2 known_fail, 43 borderline; 3 fills, 3 missing_task, 4 stale_task). Rerun adds 0 rows (ids are the dedupe key). Gap vs fixtures: the two `lifecyclestage` missing_task proposals (M006, M007) cannot exist live because HubSpot auto-sets lifecyclestage on create. Sheet holds the 74 rows from that run; re-seeding changes HubSpot ids, so clear `proposals!A2:K` and `run_log!A2:L` first. **Dropdown + judge DONE 2026-11-03.** `workflows/dev-sheet-dropdown.json` (id `n2DevSheetDrop001`) put an accept/reject list on `proposals!J2:J` (one-off, already run). `node workflows/build-judge.js` builds `workflows/judge.json` (id `n2JudgeBorderln01`: reads proposals, HubSpot batch-reads the two contacts per borderline merge with no rationale, `claude-sonnet-5-5` via credential `iX5UtPD5bryOqgFt`, writes `verdict: reason` to column I; touches no HubSpot and not `decision`). CLI run filled 43 rows: 17 likely_duplicate, 19 likely_not_duplicate, 7 unsure. Rerun skips rows that already have a rationale. **Judge vs fixture labels (checked 2026-11-03, all 43 labelled):** 0 of 19 true non-duplicates called duplicate; 17 of 24 true duplicates called duplicate, 5 unsure, 2 missed as not-duplicate (both `married_name_phone`: T057/T058, T059/T060 — different last names, shared phone). Errors lean safe (unsure or miss, never a false merge). Shared-phone decision copied into the PRD (Decisions + sure-tier row) 2026-11-03. Phase 1 is complete; a schedule trigger is deferred to the Capstone. Phase 2 (apply accepted proposals with a `snapshots` before-image) is next after that.
+## Portal state now
+Two demo merges and 4 `[demo]` tasks are live; contact 584012675772's jobtitle was edited. A clean slate is teardown, then `workflows/seed.json`, then clear the sheet with `dev-sheet-reset.json` (re-seeding changes HubSpot ids).
 
-Done 2026-11-02 (Shane decided): added the shared-phone case (father and son on one home line, two Nguyens on one office line) to `fixtures/build.py` as labelled not-duplicate pairs. This fails the gate on purpose until the sure rule also requires first name or email to match. Copied into the PRD 2026-11-03.
+## Known limits (ponytail notes in code)
+- No accepted rows means apply writes no run_log row (the Capstone's single workflow logs every run).
+- A fill's derived value is not in its fingerprint: if the source deal's owner changes after the scan, apply writes the old value.
+- A write that succeeds but whose status write fails is retried as a new attempt next run (a task could be created twice).
 
-Decided 2026-11-02 (Shane), also in the PRD's Decisions section:
+## Runtime (from N1)
+`PATH=$HOME/.n8n-runtime/node_modules/.bin:$PATH N8N_USER_FOLDER=$HOME/.n8n-speed-to-lead n8n start`, editor at http://localhost:5678. CLI runs (`n8n import:workflow` then `n8n execute --id`) need n8n stopped. Google OAuth (Testing mode) lapses every 7 days: reconnected 2026-10-29, verified working by CLI runs 2026-11-03, so expect it to lapse around 2026-11-05.
+
+## Decided (Shane), also in the PRD
 - Review surface = Sheet tab with an accept/reject dropdown.
 - Accepted proposals are applied, merges included, after a before-image goes to `snapshots`.
 - Rules find candidates; Claude judges only borderline pairs.
 - Same HubSpot portal as N1, seeded mess behind the demo guard.
 - n8n like N1, not a saas foundation clone; no web port claimed.
-
-Runtime (from N1): `PATH=$HOME/.n8n-runtime/node_modules/.bin:$PATH N8N_USER_FOLDER=$HOME/.n8n-speed-to-lead n8n start`, editor at http://localhost:5678. CLI runs need n8n stopped. Google OAuth (Testing mode) lapses every 7 days and was last reconnected 2026-10-29, so it is due: test with a CLI run before trusting the UI's "connected".
-
-Loose ends in n8n (harmless): one parked execution of `n2DevProbeDeal001` resumes on the next `n8n start`, then 404s on already-archived records. Throwaway workflow `n2TmpCleanup0001` can be deleted in the editor. The merge probe's leftover demo contact has `demo_record=true`, so the next teardown removes it.
+- Sure tier is email-only (2026-11-03).

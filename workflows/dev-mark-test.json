@@ -1,0 +1,112 @@
+{
+  "id": "n2DevMarkTest001",
+  "name": "Dev: mark a covering accept/reject test set (one-off)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/proposals!A2:M"
+      },
+      "name": "Read",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.first().json.values, d = {};\nconst first = f => rows.findIndex(f);\nconst set = (i, v, why) => { if (i >= 0) d[i] = [v, why]; };\nset(first(r => r[7] === \"sure\"), \"accept\", \"sure merge\");\nset(rows.findIndex((r, i) => r[7] === \"sure\" && !d[i]), \"accept\", \"sure merge, record edited after scan -> stale_skipped\");\nset(first(r => r[7] === \"borderline\" && (r[8] || \"\").startsWith(\"likely_duplicate\")), \"accept\", \"borderline merge\");\nset(first(r => r[7] === \"borderline\" && (r[8] || \"\").startsWith(\"likely_not_duplicate\")), \"reject\", \"reject\");\nrows.forEach((r, i) => { if ([\"fill\", \"missing_task\"].includes(r[2])) set(i, \"accept\", r[2] + \" \" + r[4]); });\nset(first(r => r[2] === \"stale_task\"), \"accept\", \"stale task\");\nconst data = Object.entries(d).map(([i, [v]]) => ({ range: \"proposals!J\" + (Number(i) + 2), values: [[v]] }));\nreturn [{ json: { data, picked: Object.entries(d).map(([i, [v, why]]) => [Number(i) + 2, v, why, rows[i][0]]) } }];"
+      },
+      "name": "Pick",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values:batchUpdate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ valueInputOption: \"RAW\", data: $json.data }) }}"
+      },
+      "name": "Mark",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read": {
+      "main": [
+        [
+          {
+            "node": "Pick",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick": {
+      "main": [
+        [
+          {
+            "node": "Mark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "n2DevReopenRow2",
+  "name": "Dev: set proposals row 2 back to pending (already_merged test, one-off)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/proposals!K2?valueInputOption=RAW",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"values\": [[\"pending\"]]}"
+      },
+      "name": "Reopen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Reopen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -17,7 +17,7 @@ function decide(p, got) {
   if (!got.every(demo)) return "guard_refused";
   if (p.kind === "merge" && got[0].id === got[1].id) return "already_merged";
   if (got.some((g, i) => g.id !== p.records[i])) return "stale_skipped"; // merged into something else since the scan; the next scan re-proposes on the new id
-  return basis(p.kind, got.map(g => g.properties)) === p.basis ? "apply" : "stale_skipped";
+  return basis(p.kind, got.map(g => g.properties), p.field) === p.basis ? "apply" : "stale_skipped";
 }
 const API = "https://api.hubapi.com/crm/v3/objects/";
 const task = (subject, body, owner, assocTo, typeId, now) => ({ method: "POST", url: API + "tasks", body: {

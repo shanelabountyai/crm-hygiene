@@ -2,7 +2,7 @@
 const assert = require("assert"), D = require("./detect.js"), A = require("./apply.js");
 const c = (id, x = {}) => ({ id, properties: { demo_record: "true", firstname: "Ann", lastname: "Lee", email: "ann@x.example.com", ...x } });
 const p = (kind, records, x = {}) => ({ id: kind + ":" + records.join(":"), kind, records, ...x });
-const withBasis = (q, got) => ({ ...q, basis: D.basis(q.kind, got.map(g => g.properties)) });
+const withBasis = (q, got) => ({ ...q, basis: D.basis(q.kind, got.map(g => g.properties), q.field) });
 const now = Date.parse("2026-11-04T02:00:00Z");
 
 // decide
@@ -14,6 +14,9 @@ assert.equal(A.decide(m, [c("9"), c("9")]), "already_merged");
 assert.equal(A.decide(m, [c("9"), c("2")]), "stale_skipped", "primary merged into a third record");
 assert.equal(A.decide(m, [c("1"), null]), "stale_skipped", "a gone record skips");
 assert.equal(A.decide(m, [c("1"), c("2", { demo_record: null })]), "guard_refused");
+const mt = withBasis(p("missing_task", ["1"], { field: "hubspot_owner_id" }), [c("1", { company: "" })]);
+assert.equal(A.decide(mt, [c("1", { company: "Acme" })]), "apply", "a fill of another field on the same contact does not skip it");
+assert.equal(A.decide(mt, [c("1", { hubspot_owner_id: "42" })]), "stale_skipped", "its own field now set skips it");
 const deal = { id: "7", properties: { dealname: "[demo] Roof", dealstage: "contractsent", notes_last_updated: "2026-09-01T00:00:00Z" } };
 const st = withBasis(p("stale_task", ["7"]), [deal]);
 assert.equal(A.decide(st, [deal]), "apply");

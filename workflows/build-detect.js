@@ -18,7 +18,7 @@ const found = [
   ...fills(contacts, deals, companies, R), ...stale(deals, R, Date.now()),
 ];
 const byId = new Map([...contacts, ...deals].map(o => [o.id, o]));
-for (const p of found) p.basis = basis(p.kind, p.records.map(id => byId.get(id)));
+for (const p of found) p.basis = basis(p.kind, p.records.map(id => byId.get(id)), p.field);
 const runId = "run-" + new Date().toISOString(), started = $("Run once").first().json.started || runId.slice(4);
 const { append, rewrite } = upsert(found, $("Existing proposals").first().json.values || [], runId);
 const n = k => found.filter(p => p.kind === k).length;

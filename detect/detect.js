@@ -67,10 +67,12 @@ function stale(deals, R, now) {
 }
 // Stale check (Phase 2): a proposal stores a fingerprint of the fields it was based on; apply re-reads and compares.
 // Fields, not hs_lastmodifieddate: our own fill or task write bumps the timestamp and would skip a second accepted proposal on the same record.
+// A fill or missing-field task depends only on its own field, so a fill of company does not skip the owner task on the same contact.
 const BASIS = { contact: ["firstname", "lastname", "email", "phone", "company", "jobtitle", "lifecyclestage", "hubspot_owner_id"], deal: ["dealname", "dealstage", "hubspot_owner_id", "notes_last_updated"] };
 const objectOf = kind => kind === "stale_task" ? "deal" : "contact";
-function basis(kind, recs) {
-  const s = JSON.stringify(recs.map(r => BASIS[objectOf(kind)].map(k => r[k] || "")));
+const basisFields = (kind, field) => kind === "fill" || kind === "missing_task" ? [field] : BASIS[objectOf(kind)];
+function basis(kind, recs, field) {
+  const s = JSON.stringify(recs.map(r => basisFields(kind, field).map(k => r[k] || "")));
   let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; // FNV-1a
   return h.toString(16).padStart(8, "0");
 }
