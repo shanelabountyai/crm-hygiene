@@ -6,7 +6,7 @@ Done 2026-11-02: N1 teardown, PRD Q1/Q2 answered, `fixtures/build.py` + `rules/*
 
 **Pick up here:**
 
-1. Seed re-run 2026-11-03 after a clean teardown (0 demo records, verified): 160 of 161 contacts, 12 deals, 11 notes. Only failures: company CO1 still 403 (scopes error) and so contact M004 (needs CO1). `workflows/teardown.json` works (3 passes with 20 s settles); it takes several minutes. Next: confirm which companies scopes the service key `labintelligence` really has, fix, then teardown + re-seed (or add just CO1 and M004). Teardown still lacks tasks.
+1. **Seed done 2026-11-03.** Portal holds 161 contacts (`demo_record=true`), 12 `[demo]` deals, 11 back-dated notes, company CO1 (Larkspur Analytics, 1 associated contact: M004, so contact->company type 1 works). The companies scope fix took effect once saved on key 55871605 (`labintelligence`). CO1 and M004 were added by a one-off run, so a clean re-seed is teardown then `workflows/seed.json`. `workflows/teardown.json` takes several minutes (3 passes, 20 s settles) and lacks tasks. Not yet checked in HubSpot: that each deal's `notes_last_updated` matches `idle_days` (do this at the start of item 3).
 2. (superseded: teardown is above)
 3. Three rule-only detectors (port `tier`/`blocks` from build.py; blocking includes company name), the `proposals` tab, and the run log.
 
