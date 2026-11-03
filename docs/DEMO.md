@@ -18,7 +18,7 @@ Tallgrass Advisory is fictional and every record is marked `[demo]` or `demo_rec
 7. **The numbers.** `scripts/eval.sh` output: tuned and held-out reported apart; sure tier makes zero wrong merges; borderline recall 100% on both sets, with the shared-phone and same-company pairs as the false positives the judge exists to sort.
 
 ## Commands run and checked (2026-11-03)
-`scripts/eval.sh` (EVAL PASS), `n8n execute --id=n2Nightly0000001` (exit 0, three steps succeeded), forced-failure alert path. **Not yet re-run for this script:** step 4 against rows accepted by hand in the sheet (it was verified earlier with a marked test set, see NEXT history).
+`scripts/eval.sh` (EVAL PASS), `n8n execute --id=n2Nightly0000001` (exit 0, three steps succeeded), forced-failure alert path. Step 4 on rows accepted by hand in the sheet (2026-11-03): 2 merges accepted, 1 rejected; `n8n execute --id=n2ApplyAccepted1` gave 2 applied, 0 stale, 0 failed, a snapshot append before each write, and a run_log row. If column J has no dropdown (a sheet reset can lose it), re-run `workflows/dev-sheet-dropdown.json` (`n2DevSheetDrop001`, n8n stopped).
 
 ## Concede before you're asked
 - Synthetic data, one fictional firm, one HubSpot portal; not deployed (n8n runs on a laptop).
