@@ -12,7 +12,11 @@ N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KI
 ## Left
 1. **Error alert from a scheduled run: VERIFIED 2026-11-03.** A published every-minute throwaway with `errorWorkflow: n1ErrorHandler01` failed; the handler ran (success) and its "Alert owner" Gmail node executed (execution data). Mailbox receipt not checked. Throwaway deleted.
 2. **DEMO.md DONE, apply step verified by hand-accepted rows 2026-11-03** (2 merges applied, 1 rejected; portal now holds those 2 merges; fresh slate = `scripts/eval.sh`). The dropdown on column J had to be re-applied once (`n2DevSheetDrop001`); consider adding it to `scripts/eval.sh` after the sheet reset.
-3. **Closure** (CLAUDE.md): cost review DONE -> docs/COST_REVIEW.md (Anthropic spend per scan still unmeasured). Remaining: exec brief via `exec-brief`, LinkedIn posts in the Ledger, cost review (the nightly run + 53 Claude calls per fresh scan, n8n local so no Vercel/Neon), record artifact URLs here.
+3. **Closure** (CLAUDE.md): cost review DONE -> docs/COST_REVIEW.md (Anthropic spend per scan still unmeasured). Exec brief DONE 2026-11-03: **CRM Hygiene in Brief** https://claude.ai/artifact/HGD5yud5GTFUkPbrpaJBB6 (private; share before linking). Remaining: LinkedIn posts in the Ledger (mine the Brennan sure-rule failure and the timestamp-vs-fingerprint stale check first).
+
+## Artifacts
+- PRD: https://claude.ai/artifact/BQBBTKvzCcAysjsWzFdTFg
+- Exec brief: https://claude.ai/artifact/HGD5yud5GTFUkPbrpaJBB6
 
 ## Portal state now
 Freshly seeded by eval.sh and scanned; the sheet holds 74 pending proposals with judge rationale; nothing applied.

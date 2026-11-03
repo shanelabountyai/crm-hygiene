@@ -23,8 +23,9 @@ Tallgrass Advisory is fictional and every record is marked `[demo]` or `demo_rec
 ## Concede before you're asked
 - Synthetic data, one fictional firm, one HubSpot portal; not deployed (n8n runs on a laptop).
 - Missing-lifecyclestage tasks never fire live: HubSpot appears to fill it on create (inferred, not proven).
-- The judge answers `unsure` on a few pairs (32 of 39 decided on tuned, 10 of 14 held-out); a person still decides.
+- The judge is right on 32 of 39 borderline pairs (tuned) and 10 of 14 (held-out); the rest are `unsure` or a missed duplicate, never a merge of two different people. A person still decides.
 - Borderline false positives are by design; precision is the review queue's job.
+- The PRD's daily cost cap (P0-9) is not built, and the token cost of a nightly run is not measured yet (call count only: 53 on a fresh scan).
 - Google OAuth is in Testing mode and lapses weekly; a nightly with no accepted rows writes no apply log row.
 
 ## Troubleshooting
