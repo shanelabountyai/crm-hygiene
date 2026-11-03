@@ -1,0 +1,628 @@
+{
+  "id": "n2ApplyAccepted1",
+  "name": "N2 apply (accepted proposals, HubSpot writes)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Run once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/proposals!A2:M"
+      },
+      "name": "Proposals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "url": "https://api.hubapi.com/crm/v3/properties/contacts"
+      },
+      "name": "Props contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "url": "https://api.hubapi.com/crm/v3/properties/deals"
+      },
+      "name": "Props deals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        0
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rule-only detectors (PRD rule tables). Pure: no I/O, so the same file runs in the n8n Code node and in check.js.\n// rules = {match, nicknames, required_fields, stale} as in rules/*.json. Contacts: {id, firstname, lastname, email, phone, company, jobtitle, lifecyclestage, hubspot_owner_id, associated_company?}.\n// Deals: {id, dealstage, hubspot_owner_id, last_activity (ms), contact?}. Companies: {id, name}.\nconst DAY = 86400000;\nfunction prep(rules) {\n  const M = Object.fromEntries(rules.match.map(r => [r.key, r.value.split(\"|\")]));\n  return {\n    FREE: new Set(M.free_mail_domains), DOTLESS: new Set(M.dot_insensitive_domains), SHARED: new Set(M.shared_inbox_locals), SUFFIX: new Set(M.company_suffixes),\n    NICK: rules.nicknames.map(r => new Set(r.names.split(\"|\"))), REQ: rules.required_fields, STALE: Object.fromEntries(rules.stale.map(r => [r.stage, r])),\n  };\n}\nconst lc = s => (s || \"\").toLowerCase();\nfunction make(R) {\n  const nemail = e => { let [loc, dom] = lc(e).split(\"@\"); loc = loc.split(\"+\")[0]; return (R.DOTLESS.has(dom) ? loc.replace(/\\./g, \"\") : loc) + \"@\" + dom; };\n  const nphone = p => { const d = (p || \"\").replace(/\\D/g, \"\"); return d.length === 11 && d[0] === \"1\" ? d.slice(1) : d; };\n  const ncompany = s => { const t = lc(s).replace(/&/g, \" and \").replace(/[^a-z0-9 ]/g, \" \").split(/\\s+/).filter(Boolean); while (t.length && R.SUFFIX.has(t[t.length - 1])) t.pop(); return t.join(\" \"); };\n  const domain = c => { const d = lc(c.email).split(\"@\")[1] || \"\"; return R.FREE.has(d) ? \"\" : d; };\n  const firstEq = (a, b) => { a = lc(a); b = lc(b); return a === b || R.NICK.some(s => s.has(a) && s.has(b)); };\n  function tier(a, b) {\n    const ea = nemail(a.email), eb = nemail(b.email), pa = nphone(a.phone), pb = nphone(b.phone);\n    const sameLast = lc(a.lastname) === lc(b.lastname), samePhone = pa !== \"\" && pa === pb;\n    if (ea === eb) return R.SHARED.has(ea.split(\"@\")[0]) ? [\"borderline\", \"shared_inbox\"] : [\"sure\", \"email\"];\n    // Email is the only sure signal (Shane 2026-11-03): a shared phone can be a household or office line, so it is borderline and judged.\n    if (sameLast || firstEq(a.firstname, b.firstname)) {\n      const ev = [];\n      if (domain(a) !== \"\" && domain(a) === domain(b)) ev.push(\"company_domain\");\n      if (samePhone) ev.push(\"phone\");\n      if (ncompany(a.company) !== \"\" && ncompany(a.company) === ncompany(b.company)) ev.push(\"company_name\");\n      if (ev.length) return [\"borderline\", [sameLast ? \"last_name\" : \"first_name\", ...ev].join(\"+\")];\n    }\n    return [\"none\", \"\"];\n  }\n  const blocks = c => [[\"last\", lc(c.lastname)], [\"phone\", nphone(c.phone)], [\"domain\", lc(c.email).split(\"@\")[1] || \"\"], [\"company\", ncompany(c.company)]]\n    .filter(([k, v]) => v !== \"\").map(([k, v]) => k + \":\" + v);\n  return { tier, blocks, nemail, nphone, ncompany };\n}\n// Contacts are compared only inside a shared blocking key; ids are ordered so the older (lower position in input) record is the primary.\nfunction duplicates(contacts, R) {\n  const { tier, blocks } = make(R), idx = new Map();\n  contacts.forEach((c, i) => blocks(c).forEach(k => (idx.get(k) || idx.set(k, []).get(k)).push(i)));\n  const seen = new Set(), out = [];\n  for (const ix of idx.values()) for (let x = 0; x < ix.length; x++) for (let y = x + 1; y < ix.length; y++) {\n    const [i, j] = [ix[x], ix[y]], key = i + \":\" + j;\n    if (seen.has(key)) continue; seen.add(key);\n    const [t, why] = tier(contacts[i], contacts[j]);\n    if (t !== \"none\") out.push({ a: contacts[i].id, b: contacts[j].id, tier: t, matched_on: why });\n  }\n  return out;\n}\nfunction fills(contacts, deals, companies, R) {\n  const co = new Map(companies.map(c => [c.id, c])), openDeals = new Map();\n  for (const d of deals) if (d.contact && R.STALE[d.dealstage]?.closed === \"false\" && d.hubspot_owner_id) (openDeals.get(d.contact) || openDeals.set(d.contact, []).get(d.contact)).push(d);\n  const out = [];\n  for (const c of contacts) for (const r of R.REQ) {\n    if (c[r.field]) continue;\n    let val, src;\n    if (r.derive === \"open_deal_owner\") { src = (openDeals.get(c.id) || [])[0]; val = src && src.hubspot_owner_id; }\n    else if (r.derive === \"associated_company_name\" && c.associated_company) { src = co.get(c.associated_company); val = src && src.name; }\n    out.push(val ? { id: `fill:${c.id}:${r.field}`, kind: \"fill\", records: [c.id], field: r.field, value: val, source: src.id }\n                 : { id: `missing_task:${c.id}:${r.field}`, kind: \"missing_task\", records: [c.id], field: r.field });\n  }\n  return out;\n}\nfunction stale(deals, R, now) {\n  return deals.filter(d => { const s = R.STALE[d.dealstage]; return s && s.closed === \"false\" && Math.floor((now - d.last_activity) / DAY) > Number(s.max_idle_days); })\n    .map(d => ({ id: `stale_task:${d.id}`, kind: \"stale_task\", records: [d.id], owner: d.hubspot_owner_id }));\n}\n// Stale check (Phase 2): a proposal stores a fingerprint of the fields it was based on; apply re-reads and compares.\n// Fields, not hs_lastmodifieddate: our own fill or task write bumps the timestamp and would skip a second accepted proposal on the same record.\nconst BASIS = { contact: [\"firstname\", \"lastname\", \"email\", \"phone\", \"company\", \"jobtitle\", \"lifecyclestage\", \"hubspot_owner_id\"], deal: [\"dealname\", \"dealstage\", \"hubspot_owner_id\", \"notes_last_updated\"] };\nconst objectOf = kind => kind === \"stale_task\" ? \"deal\" : \"contact\";\nfunction basis(kind, recs) {\n  const s = JSON.stringify(recs.map(r => BASIS[objectOf(kind)].map(k => r[k] || \"\")));\n  let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; // FNV-1a\n  return h.toString(16).padStart(8, \"0\");\n}\n// Sheet upsert on proposal_id. rows: proposals!A2:M as read, so row i is sheet row i + 2. A stale_skipped row, or a rejected\n// row whose records changed, is reopened in place (decision and rationale cleared); every other existing row is left alone.\nconst COLS = [\"id\", \"run_id\", \"kind\", \"records\", \"field\", \"value\", \"matched_on\", \"tier\", \"rationale\", \"decision\", \"status\", \"applied_at\", \"basis\"];\nfunction upsert(found, rows, runId) {\n  const at = new Map(rows.map((r, i) => [r[0], i])), append = [], rewrite = [];\n  for (const p of found) {\n    const row = [p.id, runId, p.kind, p.records.join(\",\"), p.field || \"\", p.value || \"\", p.matched_on || \"\", p.tier || \"\", \"\", \"\", \"pending\", \"\", p.basis];\n    if (!at.has(p.id)) { append.push(row); continue; }\n    const i = at.get(p.id), r = rows[i], status = r[10], was = r[12];\n    if (status === \"stale_skipped\" || (status === \"rejected\" && was !== p.basis)) rewrite.push({ range: `proposals!A${i + 2}:M${i + 2}`, values: [row] });\n  }\n  return { append, rewrite };\n}\n\n// Apply-phase decisions (PRD P0-6). Pure, like detect.js: build-apply.js embeds it in n8n Code nodes; check-apply.js tests it.\n\n// rows = proposals!A2:M. Accepted rows still pending are applied; rejected rows still pending are marked rejected.\nfunction triage(rows) {\n  const accept = [], reject = [];\n  rows.forEach((r, i) => {\n    if (r[10] !== \"pending\") return;\n    if (r[9] === \"reject\") reject.push({ range: `proposals!K${i + 2}`, values: [[\"rejected\"]] });\n    if (r[9] === \"accept\") accept.push({ row: i + 2, id: r[0], kind: r[2], records: r[3].split(\",\"), field: r[4], value: r[5], basis: r[12] || \"\" });\n  });\n  return { accept, reject };\n}\n// got[i] = the GET of p.records[i]: {id, properties} (HubSpot answers a merged-away id with the surviving record), or null when it is gone.\nfunction decide(p, got) {\n  if (got.some(g => !g)) return \"stale_skipped\";\n  const demo = objectOf(p.kind) === \"deal\" ? g => (g.properties.dealname || \"\").startsWith(\"[demo]\") : g => g.properties.demo_record === \"true\";\n  if (!got.every(demo)) return \"guard_refused\";\n  if (p.kind === \"merge\" && got[0].id === got[1].id) return \"already_merged\";\n  if (got.some((g, i) => g.id !== p.records[i])) return \"stale_skipped\"; // merged into something else since the scan; the next scan re-proposes on the new id\n  return basis(p.kind, got.map(g => g.properties)) === p.basis ? \"apply\" : \"stale_skipped\";\n}\nconst API = \"https://api.hubapi.com/crm/v3/objects/\";\nconst task = (subject, body, owner, assocTo, typeId, now) => ({ method: \"POST\", url: API + \"tasks\", body: {\n  properties: { hs_task_subject: subject, hs_task_body: body, hs_task_status: \"NOT_STARTED\", hs_timestamp: new Date(now + 86400000).toISOString(), hubspot_owner_id: owner },\n  associations: [{ to: { id: assocTo }, types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: typeId }] }] } });\n// Tasks carry '[demo]' in the subject so teardown finds them. A contact missing its owner gets the task on defaultOwner.\nfunction request(p, got, now, defaultOwner) {\n  const g = got[0].properties;\n  switch (p.kind) {\n    case \"merge\": return { method: \"POST\", url: API + \"contacts/merge\", body: { primaryObjectId: p.records[0], objectIdToMerge: p.records[1] } };\n    case \"fill\": return { method: \"PATCH\", url: API + \"contacts/\" + p.records[0], body: { properties: { [p.field]: p.value } } };\n    case \"missing_task\": return task(`[demo] Set ${p.field} on ${g.firstname} ${g.lastname}`, `CRM hygiene ${p.id}: ${p.field} is empty and nothing on the record says what it should be.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 204, now); // task -> contact\n    case \"stale_task\": return task(`[demo] Follow up: ${(g.dealname || \"\").replace(/^\\[demo\\]\\s*/, \"\")}`, `CRM hygiene ${p.id}: no activity since ${g.notes_last_updated || g.createdate}.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 216, now); // task -> deal\n  }\n  throw new Error(\"unknown kind \" + p.kind);\n}\n// Before-image: every non-empty property of every touched record.\nconst snapshots = (p, full, runId, now) => full.map(o => [p.id, runId, objectOf(p.kind), o.id,\n  JSON.stringify(Object.fromEntries(Object.entries(o.properties).filter(([, v]) => v !== null && v !== \"\"))), new Date(now).toISOString()]);\n\n\nconst runId = \"apply-\" + new Date().toISOString();\nconst t = triage($(\"Proposals\").first().json.values || []);\nreturn [{ json: { runId, started: runId.slice(6), ...t } }];"
+      },
+      "name": "Triage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values:batchUpdate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ valueInputOption: \"RAW\", data: $('Triage').first().json.reject }) }}"
+      },
+      "name": "Mark rejected",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "return $(\"Triage\").first().json.accept.map(p => ({ json: p }));"
+      },
+      "name": "Accepted",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rule-only detectors (PRD rule tables). Pure: no I/O, so the same file runs in the n8n Code node and in check.js.\n// rules = {match, nicknames, required_fields, stale} as in rules/*.json. Contacts: {id, firstname, lastname, email, phone, company, jobtitle, lifecyclestage, hubspot_owner_id, associated_company?}.\n// Deals: {id, dealstage, hubspot_owner_id, last_activity (ms), contact?}. Companies: {id, name}.\nconst DAY = 86400000;\nfunction prep(rules) {\n  const M = Object.fromEntries(rules.match.map(r => [r.key, r.value.split(\"|\")]));\n  return {\n    FREE: new Set(M.free_mail_domains), DOTLESS: new Set(M.dot_insensitive_domains), SHARED: new Set(M.shared_inbox_locals), SUFFIX: new Set(M.company_suffixes),\n    NICK: rules.nicknames.map(r => new Set(r.names.split(\"|\"))), REQ: rules.required_fields, STALE: Object.fromEntries(rules.stale.map(r => [r.stage, r])),\n  };\n}\nconst lc = s => (s || \"\").toLowerCase();\nfunction make(R) {\n  const nemail = e => { let [loc, dom] = lc(e).split(\"@\"); loc = loc.split(\"+\")[0]; return (R.DOTLESS.has(dom) ? loc.replace(/\\./g, \"\") : loc) + \"@\" + dom; };\n  const nphone = p => { const d = (p || \"\").replace(/\\D/g, \"\"); return d.length === 11 && d[0] === \"1\" ? d.slice(1) : d; };\n  const ncompany = s => { const t = lc(s).replace(/&/g, \" and \").replace(/[^a-z0-9 ]/g, \" \").split(/\\s+/).filter(Boolean); while (t.length && R.SUFFIX.has(t[t.length - 1])) t.pop(); return t.join(\" \"); };\n  const domain = c => { const d = lc(c.email).split(\"@\")[1] || \"\"; return R.FREE.has(d) ? \"\" : d; };\n  const firstEq = (a, b) => { a = lc(a); b = lc(b); return a === b || R.NICK.some(s => s.has(a) && s.has(b)); };\n  function tier(a, b) {\n    const ea = nemail(a.email), eb = nemail(b.email), pa = nphone(a.phone), pb = nphone(b.phone);\n    const sameLast = lc(a.lastname) === lc(b.lastname), samePhone = pa !== \"\" && pa === pb;\n    if (ea === eb) return R.SHARED.has(ea.split(\"@\")[0]) ? [\"borderline\", \"shared_inbox\"] : [\"sure\", \"email\"];\n    // Email is the only sure signal (Shane 2026-11-03): a shared phone can be a household or office line, so it is borderline and judged.\n    if (sameLast || firstEq(a.firstname, b.firstname)) {\n      const ev = [];\n      if (domain(a) !== \"\" && domain(a) === domain(b)) ev.push(\"company_domain\");\n      if (samePhone) ev.push(\"phone\");\n      if (ncompany(a.company) !== \"\" && ncompany(a.company) === ncompany(b.company)) ev.push(\"company_name\");\n      if (ev.length) return [\"borderline\", [sameLast ? \"last_name\" : \"first_name\", ...ev].join(\"+\")];\n    }\n    return [\"none\", \"\"];\n  }\n  const blocks = c => [[\"last\", lc(c.lastname)], [\"phone\", nphone(c.phone)], [\"domain\", lc(c.email).split(\"@\")[1] || \"\"], [\"company\", ncompany(c.company)]]\n    .filter(([k, v]) => v !== \"\").map(([k, v]) => k + \":\" + v);\n  return { tier, blocks, nemail, nphone, ncompany };\n}\n// Contacts are compared only inside a shared blocking key; ids are ordered so the older (lower position in input) record is the primary.\nfunction duplicates(contacts, R) {\n  const { tier, blocks } = make(R), idx = new Map();\n  contacts.forEach((c, i) => blocks(c).forEach(k => (idx.get(k) || idx.set(k, []).get(k)).push(i)));\n  const seen = new Set(), out = [];\n  for (const ix of idx.values()) for (let x = 0; x < ix.length; x++) for (let y = x + 1; y < ix.length; y++) {\n    const [i, j] = [ix[x], ix[y]], key = i + \":\" + j;\n    if (seen.has(key)) continue; seen.add(key);\n    const [t, why] = tier(contacts[i], contacts[j]);\n    if (t !== \"none\") out.push({ a: contacts[i].id, b: contacts[j].id, tier: t, matched_on: why });\n  }\n  return out;\n}\nfunction fills(contacts, deals, companies, R) {\n  const co = new Map(companies.map(c => [c.id, c])), openDeals = new Map();\n  for (const d of deals) if (d.contact && R.STALE[d.dealstage]?.closed === \"false\" && d.hubspot_owner_id) (openDeals.get(d.contact) || openDeals.set(d.contact, []).get(d.contact)).push(d);\n  const out = [];\n  for (const c of contacts) for (const r of R.REQ) {\n    if (c[r.field]) continue;\n    let val, src;\n    if (r.derive === \"open_deal_owner\") { src = (openDeals.get(c.id) || [])[0]; val = src && src.hubspot_owner_id; }\n    else if (r.derive === \"associated_company_name\" && c.associated_company) { src = co.get(c.associated_company); val = src && src.name; }\n    out.push(val ? { id: `fill:${c.id}:${r.field}`, kind: \"fill\", records: [c.id], field: r.field, value: val, source: src.id }\n                 : { id: `missing_task:${c.id}:${r.field}`, kind: \"missing_task\", records: [c.id], field: r.field });\n  }\n  return out;\n}\nfunction stale(deals, R, now) {\n  return deals.filter(d => { const s = R.STALE[d.dealstage]; return s && s.closed === \"false\" && Math.floor((now - d.last_activity) / DAY) > Number(s.max_idle_days); })\n    .map(d => ({ id: `stale_task:${d.id}`, kind: \"stale_task\", records: [d.id], owner: d.hubspot_owner_id }));\n}\n// Stale check (Phase 2): a proposal stores a fingerprint of the fields it was based on; apply re-reads and compares.\n// Fields, not hs_lastmodifieddate: our own fill or task write bumps the timestamp and would skip a second accepted proposal on the same record.\nconst BASIS = { contact: [\"firstname\", \"lastname\", \"email\", \"phone\", \"company\", \"jobtitle\", \"lifecyclestage\", \"hubspot_owner_id\"], deal: [\"dealname\", \"dealstage\", \"hubspot_owner_id\", \"notes_last_updated\"] };\nconst objectOf = kind => kind === \"stale_task\" ? \"deal\" : \"contact\";\nfunction basis(kind, recs) {\n  const s = JSON.stringify(recs.map(r => BASIS[objectOf(kind)].map(k => r[k] || \"\")));\n  let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; // FNV-1a\n  return h.toString(16).padStart(8, \"0\");\n}\n// Sheet upsert on proposal_id. rows: proposals!A2:M as read, so row i is sheet row i + 2. A stale_skipped row, or a rejected\n// row whose records changed, is reopened in place (decision and rationale cleared); every other existing row is left alone.\nconst COLS = [\"id\", \"run_id\", \"kind\", \"records\", \"field\", \"value\", \"matched_on\", \"tier\", \"rationale\", \"decision\", \"status\", \"applied_at\", \"basis\"];\nfunction upsert(found, rows, runId) {\n  const at = new Map(rows.map((r, i) => [r[0], i])), append = [], rewrite = [];\n  for (const p of found) {\n    const row = [p.id, runId, p.kind, p.records.join(\",\"), p.field || \"\", p.value || \"\", p.matched_on || \"\", p.tier || \"\", \"\", \"\", \"pending\", \"\", p.basis];\n    if (!at.has(p.id)) { append.push(row); continue; }\n    const i = at.get(p.id), r = rows[i], status = r[10], was = r[12];\n    if (status === \"stale_skipped\" || (status === \"rejected\" && was !== p.basis)) rewrite.push({ range: `proposals!A${i + 2}:M${i + 2}`, values: [row] });\n  }\n  return { append, rewrite };\n}\n\n// Apply-phase decisions (PRD P0-6). Pure, like detect.js: build-apply.js embeds it in n8n Code nodes; check-apply.js tests it.\n\n// rows = proposals!A2:M. Accepted rows still pending are applied; rejected rows still pending are marked rejected.\nfunction triage(rows) {\n  const accept = [], reject = [];\n  rows.forEach((r, i) => {\n    if (r[10] !== \"pending\") return;\n    if (r[9] === \"reject\") reject.push({ range: `proposals!K${i + 2}`, values: [[\"rejected\"]] });\n    if (r[9] === \"accept\") accept.push({ row: i + 2, id: r[0], kind: r[2], records: r[3].split(\",\"), field: r[4], value: r[5], basis: r[12] || \"\" });\n  });\n  return { accept, reject };\n}\n// got[i] = the GET of p.records[i]: {id, properties} (HubSpot answers a merged-away id with the surviving record), or null when it is gone.\nfunction decide(p, got) {\n  if (got.some(g => !g)) return \"stale_skipped\";\n  const demo = objectOf(p.kind) === \"deal\" ? g => (g.properties.dealname || \"\").startsWith(\"[demo]\") : g => g.properties.demo_record === \"true\";\n  if (!got.every(demo)) return \"guard_refused\";\n  if (p.kind === \"merge\" && got[0].id === got[1].id) return \"already_merged\";\n  if (got.some((g, i) => g.id !== p.records[i])) return \"stale_skipped\"; // merged into something else since the scan; the next scan re-proposes on the new id\n  return basis(p.kind, got.map(g => g.properties)) === p.basis ? \"apply\" : \"stale_skipped\";\n}\nconst API = \"https://api.hubapi.com/crm/v3/objects/\";\nconst task = (subject, body, owner, assocTo, typeId, now) => ({ method: \"POST\", url: API + \"tasks\", body: {\n  properties: { hs_task_subject: subject, hs_task_body: body, hs_task_status: \"NOT_STARTED\", hs_timestamp: new Date(now + 86400000).toISOString(), hubspot_owner_id: owner },\n  associations: [{ to: { id: assocTo }, types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: typeId }] }] } });\n// Tasks carry '[demo]' in the subject so teardown finds them. A contact missing its owner gets the task on defaultOwner.\nfunction request(p, got, now, defaultOwner) {\n  const g = got[0].properties;\n  switch (p.kind) {\n    case \"merge\": return { method: \"POST\", url: API + \"contacts/merge\", body: { primaryObjectId: p.records[0], objectIdToMerge: p.records[1] } };\n    case \"fill\": return { method: \"PATCH\", url: API + \"contacts/\" + p.records[0], body: { properties: { [p.field]: p.value } } };\n    case \"missing_task\": return task(`[demo] Set ${p.field} on ${g.firstname} ${g.lastname}`, `CRM hygiene ${p.id}: ${p.field} is empty and nothing on the record says what it should be.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 204, now); // task -> contact\n    case \"stale_task\": return task(`[demo] Follow up: ${(g.dealname || \"\").replace(/^\\[demo\\]\\s*/, \"\")}`, `CRM hygiene ${p.id}: no activity since ${g.notes_last_updated || g.createdate}.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 216, now); // task -> deal\n  }\n  throw new Error(\"unknown kind \" + p.kind);\n}\n// Before-image: every non-empty property of every touched record.\nconst snapshots = (p, full, runId, now) => full.map(o => [p.id, runId, objectOf(p.kind), o.id,\n  JSON.stringify(Object.fromEntries(Object.entries(o.properties).filter(([, v]) => v !== null && v !== \"\"))), new Date(now).toISOString()]);\n\n\nconst p = $input.first().json, obj = objectOf(p.kind);\nconst props = [...BASIS[obj], obj === \"deal\" ? \"createdate\" : \"demo_record\"].join(\",\");\nreturn p.records.map(rid => ({ json: { p, rid, url: \"https://api.hubapi.com/crm/v3/objects/\" + obj + \"s/\" + rid + \"?properties=\" + props } }));"
+      },
+      "name": "Expand",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "url": "={{ $json.url }}"
+      },
+      "name": "Get record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        0
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rule-only detectors (PRD rule tables). Pure: no I/O, so the same file runs in the n8n Code node and in check.js.\n// rules = {match, nicknames, required_fields, stale} as in rules/*.json. Contacts: {id, firstname, lastname, email, phone, company, jobtitle, lifecyclestage, hubspot_owner_id, associated_company?}.\n// Deals: {id, dealstage, hubspot_owner_id, last_activity (ms), contact?}. Companies: {id, name}.\nconst DAY = 86400000;\nfunction prep(rules) {\n  const M = Object.fromEntries(rules.match.map(r => [r.key, r.value.split(\"|\")]));\n  return {\n    FREE: new Set(M.free_mail_domains), DOTLESS: new Set(M.dot_insensitive_domains), SHARED: new Set(M.shared_inbox_locals), SUFFIX: new Set(M.company_suffixes),\n    NICK: rules.nicknames.map(r => new Set(r.names.split(\"|\"))), REQ: rules.required_fields, STALE: Object.fromEntries(rules.stale.map(r => [r.stage, r])),\n  };\n}\nconst lc = s => (s || \"\").toLowerCase();\nfunction make(R) {\n  const nemail = e => { let [loc, dom] = lc(e).split(\"@\"); loc = loc.split(\"+\")[0]; return (R.DOTLESS.has(dom) ? loc.replace(/\\./g, \"\") : loc) + \"@\" + dom; };\n  const nphone = p => { const d = (p || \"\").replace(/\\D/g, \"\"); return d.length === 11 && d[0] === \"1\" ? d.slice(1) : d; };\n  const ncompany = s => { const t = lc(s).replace(/&/g, \" and \").replace(/[^a-z0-9 ]/g, \" \").split(/\\s+/).filter(Boolean); while (t.length && R.SUFFIX.has(t[t.length - 1])) t.pop(); return t.join(\" \"); };\n  const domain = c => { const d = lc(c.email).split(\"@\")[1] || \"\"; return R.FREE.has(d) ? \"\" : d; };\n  const firstEq = (a, b) => { a = lc(a); b = lc(b); return a === b || R.NICK.some(s => s.has(a) && s.has(b)); };\n  function tier(a, b) {\n    const ea = nemail(a.email), eb = nemail(b.email), pa = nphone(a.phone), pb = nphone(b.phone);\n    const sameLast = lc(a.lastname) === lc(b.lastname), samePhone = pa !== \"\" && pa === pb;\n    if (ea === eb) return R.SHARED.has(ea.split(\"@\")[0]) ? [\"borderline\", \"shared_inbox\"] : [\"sure\", \"email\"];\n    // Email is the only sure signal (Shane 2026-11-03): a shared phone can be a household or office line, so it is borderline and judged.\n    if (sameLast || firstEq(a.firstname, b.firstname)) {\n      const ev = [];\n      if (domain(a) !== \"\" && domain(a) === domain(b)) ev.push(\"company_domain\");\n      if (samePhone) ev.push(\"phone\");\n      if (ncompany(a.company) !== \"\" && ncompany(a.company) === ncompany(b.company)) ev.push(\"company_name\");\n      if (ev.length) return [\"borderline\", [sameLast ? \"last_name\" : \"first_name\", ...ev].join(\"+\")];\n    }\n    return [\"none\", \"\"];\n  }\n  const blocks = c => [[\"last\", lc(c.lastname)], [\"phone\", nphone(c.phone)], [\"domain\", lc(c.email).split(\"@\")[1] || \"\"], [\"company\", ncompany(c.company)]]\n    .filter(([k, v]) => v !== \"\").map(([k, v]) => k + \":\" + v);\n  return { tier, blocks, nemail, nphone, ncompany };\n}\n// Contacts are compared only inside a shared blocking key; ids are ordered so the older (lower position in input) record is the primary.\nfunction duplicates(contacts, R) {\n  const { tier, blocks } = make(R), idx = new Map();\n  contacts.forEach((c, i) => blocks(c).forEach(k => (idx.get(k) || idx.set(k, []).get(k)).push(i)));\n  const seen = new Set(), out = [];\n  for (const ix of idx.values()) for (let x = 0; x < ix.length; x++) for (let y = x + 1; y < ix.length; y++) {\n    const [i, j] = [ix[x], ix[y]], key = i + \":\" + j;\n    if (seen.has(key)) continue; seen.add(key);\n    const [t, why] = tier(contacts[i], contacts[j]);\n    if (t !== \"none\") out.push({ a: contacts[i].id, b: contacts[j].id, tier: t, matched_on: why });\n  }\n  return out;\n}\nfunction fills(contacts, deals, companies, R) {\n  const co = new Map(companies.map(c => [c.id, c])), openDeals = new Map();\n  for (const d of deals) if (d.contact && R.STALE[d.dealstage]?.closed === \"false\" && d.hubspot_owner_id) (openDeals.get(d.contact) || openDeals.set(d.contact, []).get(d.contact)).push(d);\n  const out = [];\n  for (const c of contacts) for (const r of R.REQ) {\n    if (c[r.field]) continue;\n    let val, src;\n    if (r.derive === \"open_deal_owner\") { src = (openDeals.get(c.id) || [])[0]; val = src && src.hubspot_owner_id; }\n    else if (r.derive === \"associated_company_name\" && c.associated_company) { src = co.get(c.associated_company); val = src && src.name; }\n    out.push(val ? { id: `fill:${c.id}:${r.field}`, kind: \"fill\", records: [c.id], field: r.field, value: val, source: src.id }\n                 : { id: `missing_task:${c.id}:${r.field}`, kind: \"missing_task\", records: [c.id], field: r.field });\n  }\n  return out;\n}\nfunction stale(deals, R, now) {\n  return deals.filter(d => { const s = R.STALE[d.dealstage]; return s && s.closed === \"false\" && Math.floor((now - d.last_activity) / DAY) > Number(s.max_idle_days); })\n    .map(d => ({ id: `stale_task:${d.id}`, kind: \"stale_task\", records: [d.id], owner: d.hubspot_owner_id }));\n}\n// Stale check (Phase 2): a proposal stores a fingerprint of the fields it was based on; apply re-reads and compares.\n// Fields, not hs_lastmodifieddate: our own fill or task write bumps the timestamp and would skip a second accepted proposal on the same record.\nconst BASIS = { contact: [\"firstname\", \"lastname\", \"email\", \"phone\", \"company\", \"jobtitle\", \"lifecyclestage\", \"hubspot_owner_id\"], deal: [\"dealname\", \"dealstage\", \"hubspot_owner_id\", \"notes_last_updated\"] };\nconst objectOf = kind => kind === \"stale_task\" ? \"deal\" : \"contact\";\nfunction basis(kind, recs) {\n  const s = JSON.stringify(recs.map(r => BASIS[objectOf(kind)].map(k => r[k] || \"\")));\n  let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; // FNV-1a\n  return h.toString(16).padStart(8, \"0\");\n}\n// Sheet upsert on proposal_id. rows: proposals!A2:M as read, so row i is sheet row i + 2. A stale_skipped row, or a rejected\n// row whose records changed, is reopened in place (decision and rationale cleared); every other existing row is left alone.\nconst COLS = [\"id\", \"run_id\", \"kind\", \"records\", \"field\", \"value\", \"matched_on\", \"tier\", \"rationale\", \"decision\", \"status\", \"applied_at\", \"basis\"];\nfunction upsert(found, rows, runId) {\n  const at = new Map(rows.map((r, i) => [r[0], i])), append = [], rewrite = [];\n  for (const p of found) {\n    const row = [p.id, runId, p.kind, p.records.join(\",\"), p.field || \"\", p.value || \"\", p.matched_on || \"\", p.tier || \"\", \"\", \"\", \"pending\", \"\", p.basis];\n    if (!at.has(p.id)) { append.push(row); continue; }\n    const i = at.get(p.id), r = rows[i], status = r[10], was = r[12];\n    if (status === \"stale_skipped\" || (status === \"rejected\" && was !== p.basis)) rewrite.push({ range: `proposals!A${i + 2}:M${i + 2}`, values: [row] });\n  }\n  return { append, rewrite };\n}\n\n// Apply-phase decisions (PRD P0-6). Pure, like detect.js: build-apply.js embeds it in n8n Code nodes; check-apply.js tests it.\n\n// rows = proposals!A2:M. Accepted rows still pending are applied; rejected rows still pending are marked rejected.\nfunction triage(rows) {\n  const accept = [], reject = [];\n  rows.forEach((r, i) => {\n    if (r[10] !== \"pending\") return;\n    if (r[9] === \"reject\") reject.push({ range: `proposals!K${i + 2}`, values: [[\"rejected\"]] });\n    if (r[9] === \"accept\") accept.push({ row: i + 2, id: r[0], kind: r[2], records: r[3].split(\",\"), field: r[4], value: r[5], basis: r[12] || \"\" });\n  });\n  return { accept, reject };\n}\n// got[i] = the GET of p.records[i]: {id, properties} (HubSpot answers a merged-away id with the surviving record), or null when it is gone.\nfunction decide(p, got) {\n  if (got.some(g => !g)) return \"stale_skipped\";\n  const demo = objectOf(p.kind) === \"deal\" ? g => (g.properties.dealname || \"\").startsWith(\"[demo]\") : g => g.properties.demo_record === \"true\";\n  if (!got.every(demo)) return \"guard_refused\";\n  if (p.kind === \"merge\" && got[0].id === got[1].id) return \"already_merged\";\n  if (got.some((g, i) => g.id !== p.records[i])) return \"stale_skipped\"; // merged into something else since the scan; the next scan re-proposes on the new id\n  return basis(p.kind, got.map(g => g.properties)) === p.basis ? \"apply\" : \"stale_skipped\";\n}\nconst API = \"https://api.hubapi.com/crm/v3/objects/\";\nconst task = (subject, body, owner, assocTo, typeId, now) => ({ method: \"POST\", url: API + \"tasks\", body: {\n  properties: { hs_task_subject: subject, hs_task_body: body, hs_task_status: \"NOT_STARTED\", hs_timestamp: new Date(now + 86400000).toISOString(), hubspot_owner_id: owner },\n  associations: [{ to: { id: assocTo }, types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: typeId }] }] } });\n// Tasks carry '[demo]' in the subject so teardown finds them. A contact missing its owner gets the task on defaultOwner.\nfunction request(p, got, now, defaultOwner) {\n  const g = got[0].properties;\n  switch (p.kind) {\n    case \"merge\": return { method: \"POST\", url: API + \"contacts/merge\", body: { primaryObjectId: p.records[0], objectIdToMerge: p.records[1] } };\n    case \"fill\": return { method: \"PATCH\", url: API + \"contacts/\" + p.records[0], body: { properties: { [p.field]: p.value } } };\n    case \"missing_task\": return task(`[demo] Set ${p.field} on ${g.firstname} ${g.lastname}`, `CRM hygiene ${p.id}: ${p.field} is empty and nothing on the record says what it should be.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 204, now); // task -> contact\n    case \"stale_task\": return task(`[demo] Follow up: ${(g.dealname || \"\").replace(/^\\[demo\\]\\s*/, \"\")}`, `CRM hygiene ${p.id}: no activity since ${g.notes_last_updated || g.createdate}.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 216, now); // task -> deal\n  }\n  throw new Error(\"unknown kind \" + p.kind);\n}\n// Before-image: every non-empty property of every touched record.\nconst snapshots = (p, full, runId, now) => full.map(o => [p.id, runId, objectOf(p.kind), o.id,\n  JSON.stringify(Object.fromEntries(Object.entries(o.properties).filter(([, v]) => v !== null && v !== \"\"))), new Date(now).toISOString()]);\n\n\nconst p = $(\"Expand\").first().json.p, obj = objectOf(p.kind);\nconst got = $input.all().map(r => r.json.id && !r.json.error ? { id: String(r.json.id), properties: r.json.properties } : null);\nconst status = decide(p, got), now = Date.now();\nif (status !== \"apply\") return [{ json: { p, status } }];\nconst names = $(\"Props \" + obj + \"s\").first().json.results.map(r => r.name);\nreturn [{ json: { p, status, req: request(p, got, now, \"95417437\"), full: { url: \"https://api.hubapi.com/crm/v3/objects/\" + obj + \"s/batch/read\", body: { properties: names, inputs: p.records.map(id => ({ id })) } } } }];"
+      },
+      "name": "Decide",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "apply",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "apply",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Apply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "method": "POST",
+        "url": "={{ $json.full.url }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.full.body) }}"
+      },
+      "name": "Full read",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2600,
+        0
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rule-only detectors (PRD rule tables). Pure: no I/O, so the same file runs in the n8n Code node and in check.js.\n// rules = {match, nicknames, required_fields, stale} as in rules/*.json. Contacts: {id, firstname, lastname, email, phone, company, jobtitle, lifecyclestage, hubspot_owner_id, associated_company?}.\n// Deals: {id, dealstage, hubspot_owner_id, last_activity (ms), contact?}. Companies: {id, name}.\nconst DAY = 86400000;\nfunction prep(rules) {\n  const M = Object.fromEntries(rules.match.map(r => [r.key, r.value.split(\"|\")]));\n  return {\n    FREE: new Set(M.free_mail_domains), DOTLESS: new Set(M.dot_insensitive_domains), SHARED: new Set(M.shared_inbox_locals), SUFFIX: new Set(M.company_suffixes),\n    NICK: rules.nicknames.map(r => new Set(r.names.split(\"|\"))), REQ: rules.required_fields, STALE: Object.fromEntries(rules.stale.map(r => [r.stage, r])),\n  };\n}\nconst lc = s => (s || \"\").toLowerCase();\nfunction make(R) {\n  const nemail = e => { let [loc, dom] = lc(e).split(\"@\"); loc = loc.split(\"+\")[0]; return (R.DOTLESS.has(dom) ? loc.replace(/\\./g, \"\") : loc) + \"@\" + dom; };\n  const nphone = p => { const d = (p || \"\").replace(/\\D/g, \"\"); return d.length === 11 && d[0] === \"1\" ? d.slice(1) : d; };\n  const ncompany = s => { const t = lc(s).replace(/&/g, \" and \").replace(/[^a-z0-9 ]/g, \" \").split(/\\s+/).filter(Boolean); while (t.length && R.SUFFIX.has(t[t.length - 1])) t.pop(); return t.join(\" \"); };\n  const domain = c => { const d = lc(c.email).split(\"@\")[1] || \"\"; return R.FREE.has(d) ? \"\" : d; };\n  const firstEq = (a, b) => { a = lc(a); b = lc(b); return a === b || R.NICK.some(s => s.has(a) && s.has(b)); };\n  function tier(a, b) {\n    const ea = nemail(a.email), eb = nemail(b.email), pa = nphone(a.phone), pb = nphone(b.phone);\n    const sameLast = lc(a.lastname) === lc(b.lastname), samePhone = pa !== \"\" && pa === pb;\n    if (ea === eb) return R.SHARED.has(ea.split(\"@\")[0]) ? [\"borderline\", \"shared_inbox\"] : [\"sure\", \"email\"];\n    // Email is the only sure signal (Shane 2026-11-03): a shared phone can be a household or office line, so it is borderline and judged.\n    if (sameLast || firstEq(a.firstname, b.firstname)) {\n      const ev = [];\n      if (domain(a) !== \"\" && domain(a) === domain(b)) ev.push(\"company_domain\");\n      if (samePhone) ev.push(\"phone\");\n      if (ncompany(a.company) !== \"\" && ncompany(a.company) === ncompany(b.company)) ev.push(\"company_name\");\n      if (ev.length) return [\"borderline\", [sameLast ? \"last_name\" : \"first_name\", ...ev].join(\"+\")];\n    }\n    return [\"none\", \"\"];\n  }\n  const blocks = c => [[\"last\", lc(c.lastname)], [\"phone\", nphone(c.phone)], [\"domain\", lc(c.email).split(\"@\")[1] || \"\"], [\"company\", ncompany(c.company)]]\n    .filter(([k, v]) => v !== \"\").map(([k, v]) => k + \":\" + v);\n  return { tier, blocks, nemail, nphone, ncompany };\n}\n// Contacts are compared only inside a shared blocking key; ids are ordered so the older (lower position in input) record is the primary.\nfunction duplicates(contacts, R) {\n  const { tier, blocks } = make(R), idx = new Map();\n  contacts.forEach((c, i) => blocks(c).forEach(k => (idx.get(k) || idx.set(k, []).get(k)).push(i)));\n  const seen = new Set(), out = [];\n  for (const ix of idx.values()) for (let x = 0; x < ix.length; x++) for (let y = x + 1; y < ix.length; y++) {\n    const [i, j] = [ix[x], ix[y]], key = i + \":\" + j;\n    if (seen.has(key)) continue; seen.add(key);\n    const [t, why] = tier(contacts[i], contacts[j]);\n    if (t !== \"none\") out.push({ a: contacts[i].id, b: contacts[j].id, tier: t, matched_on: why });\n  }\n  return out;\n}\nfunction fills(contacts, deals, companies, R) {\n  const co = new Map(companies.map(c => [c.id, c])), openDeals = new Map();\n  for (const d of deals) if (d.contact && R.STALE[d.dealstage]?.closed === \"false\" && d.hubspot_owner_id) (openDeals.get(d.contact) || openDeals.set(d.contact, []).get(d.contact)).push(d);\n  const out = [];\n  for (const c of contacts) for (const r of R.REQ) {\n    if (c[r.field]) continue;\n    let val, src;\n    if (r.derive === \"open_deal_owner\") { src = (openDeals.get(c.id) || [])[0]; val = src && src.hubspot_owner_id; }\n    else if (r.derive === \"associated_company_name\" && c.associated_company) { src = co.get(c.associated_company); val = src && src.name; }\n    out.push(val ? { id: `fill:${c.id}:${r.field}`, kind: \"fill\", records: [c.id], field: r.field, value: val, source: src.id }\n                 : { id: `missing_task:${c.id}:${r.field}`, kind: \"missing_task\", records: [c.id], field: r.field });\n  }\n  return out;\n}\nfunction stale(deals, R, now) {\n  return deals.filter(d => { const s = R.STALE[d.dealstage]; return s && s.closed === \"false\" && Math.floor((now - d.last_activity) / DAY) > Number(s.max_idle_days); })\n    .map(d => ({ id: `stale_task:${d.id}`, kind: \"stale_task\", records: [d.id], owner: d.hubspot_owner_id }));\n}\n// Stale check (Phase 2): a proposal stores a fingerprint of the fields it was based on; apply re-reads and compares.\n// Fields, not hs_lastmodifieddate: our own fill or task write bumps the timestamp and would skip a second accepted proposal on the same record.\nconst BASIS = { contact: [\"firstname\", \"lastname\", \"email\", \"phone\", \"company\", \"jobtitle\", \"lifecyclestage\", \"hubspot_owner_id\"], deal: [\"dealname\", \"dealstage\", \"hubspot_owner_id\", \"notes_last_updated\"] };\nconst objectOf = kind => kind === \"stale_task\" ? \"deal\" : \"contact\";\nfunction basis(kind, recs) {\n  const s = JSON.stringify(recs.map(r => BASIS[objectOf(kind)].map(k => r[k] || \"\")));\n  let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; // FNV-1a\n  return h.toString(16).padStart(8, \"0\");\n}\n// Sheet upsert on proposal_id. rows: proposals!A2:M as read, so row i is sheet row i + 2. A stale_skipped row, or a rejected\n// row whose records changed, is reopened in place (decision and rationale cleared); every other existing row is left alone.\nconst COLS = [\"id\", \"run_id\", \"kind\", \"records\", \"field\", \"value\", \"matched_on\", \"tier\", \"rationale\", \"decision\", \"status\", \"applied_at\", \"basis\"];\nfunction upsert(found, rows, runId) {\n  const at = new Map(rows.map((r, i) => [r[0], i])), append = [], rewrite = [];\n  for (const p of found) {\n    const row = [p.id, runId, p.kind, p.records.join(\",\"), p.field || \"\", p.value || \"\", p.matched_on || \"\", p.tier || \"\", \"\", \"\", \"pending\", \"\", p.basis];\n    if (!at.has(p.id)) { append.push(row); continue; }\n    const i = at.get(p.id), r = rows[i], status = r[10], was = r[12];\n    if (status === \"stale_skipped\" || (status === \"rejected\" && was !== p.basis)) rewrite.push({ range: `proposals!A${i + 2}:M${i + 2}`, values: [row] });\n  }\n  return { append, rewrite };\n}\n\n// Apply-phase decisions (PRD P0-6). Pure, like detect.js: build-apply.js embeds it in n8n Code nodes; check-apply.js tests it.\n\n// rows = proposals!A2:M. Accepted rows still pending are applied; rejected rows still pending are marked rejected.\nfunction triage(rows) {\n  const accept = [], reject = [];\n  rows.forEach((r, i) => {\n    if (r[10] !== \"pending\") return;\n    if (r[9] === \"reject\") reject.push({ range: `proposals!K${i + 2}`, values: [[\"rejected\"]] });\n    if (r[9] === \"accept\") accept.push({ row: i + 2, id: r[0], kind: r[2], records: r[3].split(\",\"), field: r[4], value: r[5], basis: r[12] || \"\" });\n  });\n  return { accept, reject };\n}\n// got[i] = the GET of p.records[i]: {id, properties} (HubSpot answers a merged-away id with the surviving record), or null when it is gone.\nfunction decide(p, got) {\n  if (got.some(g => !g)) return \"stale_skipped\";\n  const demo = objectOf(p.kind) === \"deal\" ? g => (g.properties.dealname || \"\").startsWith(\"[demo]\") : g => g.properties.demo_record === \"true\";\n  if (!got.every(demo)) return \"guard_refused\";\n  if (p.kind === \"merge\" && got[0].id === got[1].id) return \"already_merged\";\n  if (got.some((g, i) => g.id !== p.records[i])) return \"stale_skipped\"; // merged into something else since the scan; the next scan re-proposes on the new id\n  return basis(p.kind, got.map(g => g.properties)) === p.basis ? \"apply\" : \"stale_skipped\";\n}\nconst API = \"https://api.hubapi.com/crm/v3/objects/\";\nconst task = (subject, body, owner, assocTo, typeId, now) => ({ method: \"POST\", url: API + \"tasks\", body: {\n  properties: { hs_task_subject: subject, hs_task_body: body, hs_task_status: \"NOT_STARTED\", hs_timestamp: new Date(now + 86400000).toISOString(), hubspot_owner_id: owner },\n  associations: [{ to: { id: assocTo }, types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: typeId }] }] } });\n// Tasks carry '[demo]' in the subject so teardown finds them. A contact missing its owner gets the task on defaultOwner.\nfunction request(p, got, now, defaultOwner) {\n  const g = got[0].properties;\n  switch (p.kind) {\n    case \"merge\": return { method: \"POST\", url: API + \"contacts/merge\", body: { primaryObjectId: p.records[0], objectIdToMerge: p.records[1] } };\n    case \"fill\": return { method: \"PATCH\", url: API + \"contacts/\" + p.records[0], body: { properties: { [p.field]: p.value } } };\n    case \"missing_task\": return task(`[demo] Set ${p.field} on ${g.firstname} ${g.lastname}`, `CRM hygiene ${p.id}: ${p.field} is empty and nothing on the record says what it should be.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 204, now); // task -> contact\n    case \"stale_task\": return task(`[demo] Follow up: ${(g.dealname || \"\").replace(/^\\[demo\\]\\s*/, \"\")}`, `CRM hygiene ${p.id}: no activity since ${g.notes_last_updated || g.createdate}.`,\n      g.hubspot_owner_id || defaultOwner, p.records[0], 216, now); // task -> deal\n  }\n  throw new Error(\"unknown kind \" + p.kind);\n}\n// Before-image: every non-empty property of every touched record.\nconst snapshots = (p, full, runId, now) => full.map(o => [p.id, runId, objectOf(p.kind), o.id,\n  JSON.stringify(Object.fromEntries(Object.entries(o.properties).filter(([, v]) => v !== null && v !== \"\"))), new Date(now).toISOString()]);\n\n\nconst { p } = $(\"Decide\").first().json;\nreturn [{ json: { values: snapshots(p, $input.first().json.results, $(\"Triage\").first().json.runId, Date.now()) } }];"
+      },
+      "name": "Snapshot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/snapshots!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: $json.values }) }}"
+      },
+      "name": "Append snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3000,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "method": "={{ $('Decide').first().json.req.method }}",
+        "url": "={{ $('Decide').first().json.req.url }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Decide').first().json.req.body) }}"
+      },
+      "name": "Write",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        0
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "u1WBi64R7zas6Zfn",
+          "name": "HubSpot Service Key account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $(\"Decide\").first().json;\nlet status = d.status, at = \"\";\nif (status === \"apply\") { const r = $input.first().json; status = r.error ? \"failed: \" + String(r.error.message || JSON.stringify(r.error)).slice(0, 200) : \"applied\"; at = new Date().toISOString(); }\nreturn [{ json: { id: d.p.id, row: d.p.row, status, at } }];"
+      },
+      "name": "Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "PUT",
+        "url": "={{ \"https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/proposals!K\" + $json.row + \":L\" + $json.row + \"?valueInputOption=RAW\" }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: [[$json.status, $json.at]] }) }}"
+      },
+      "name": "Write status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3600,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $(\"Status\").all();"
+      },
+      "name": "Next",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const t = $(\"Triage\").first().json, s = $input.all().map(i => i.json.status.split(\":\")[0]);\nconst n = k => s.filter(v => v === k).length;\nreturn [{ json: { values: [[t.runId, t.started, new Date().toISOString(), \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"apply\", n(\"applied\"), n(\"stale_skipped\"), n(\"already_merged\"), n(\"failed\"), n(\"guard_refused\"), t.reject.length]] } }];"
+      },
+      "name": "Tally",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "method": "POST",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/values/run_log!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ values: $json.values }) }}"
+      },
+      "name": "Append run_log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4200,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "McOy4auCNkFX0Os2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Run once": {
+      "main": [
+        [
+          {
+            "node": "Proposals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proposals": {
+      "main": [
+        [
+          {
+            "node": "Props contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Props contacts": {
+      "main": [
+        [
+          {
+            "node": "Props deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Props deals": {
+      "main": [
+        [
+          {
+            "node": "Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triage": {
+      "main": [
+        [
+          {
+            "node": "Mark rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark rejected": {
+      "main": [
+        [
+          {
+            "node": "Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accepted": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop": {
+      "main": [
+        [
+          {
+            "node": "Tally",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Expand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand": {
+      "main": [
+        [
+          {
+            "node": "Get record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get record": {
+      "main": [
+        [
+          {
+            "node": "Decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide": {
+      "main": [
+        [
+          {
+            "node": "Apply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply?": {
+      "main": [
+        [
+          {
+            "node": "Full read",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full read": {
+      "main": [
+        [
+          {
+            "node": "Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Append snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append snapshot": {
+      "main": [
+        [
+          {
+            "node": "Write",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write": {
+      "main": [
+        [
+          {
+            "node": "Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status": {
+      "main": [
+        [
+          {
+            "node": "Write status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write status": {
+      "main": [
+        [
+          {
+            "node": "Next",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tally": {
+      "main": [
+        [
+          {
+            "node": "Append run_log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

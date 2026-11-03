@@ -65,4 +65,26 @@ function stale(deals, R, now) {
   return deals.filter(d => { const s = R.STALE[d.dealstage]; return s && s.closed === "false" && Math.floor((now - d.last_activity) / DAY) > Number(s.max_idle_days); })
     .map(d => ({ id: `stale_task:${d.id}`, kind: "stale_task", records: [d.id], owner: d.hubspot_owner_id }));
 }
-module.exports = { prep, make, duplicates, fills, stale };
+// Stale check (Phase 2): a proposal stores a fingerprint of the fields it was based on; apply re-reads and compares.
+// Fields, not hs_lastmodifieddate: our own fill or task write bumps the timestamp and would skip a second accepted proposal on the same record.
+const BASIS = { contact: ["firstname", "lastname", "email", "phone", "company", "jobtitle", "lifecyclestage", "hubspot_owner_id"], deal: ["dealname", "dealstage", "hubspot_owner_id", "notes_last_updated"] };
+const objectOf = kind => kind === "stale_task" ? "deal" : "contact";
+function basis(kind, recs) {
+  const s = JSON.stringify(recs.map(r => BASIS[objectOf(kind)].map(k => r[k] || "")));
+  let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; // FNV-1a
+  return h.toString(16).padStart(8, "0");
+}
+// Sheet upsert on proposal_id. rows: proposals!A2:M as read, so row i is sheet row i + 2. A stale_skipped row, or a rejected
+// row whose records changed, is reopened in place (decision and rationale cleared); every other existing row is left alone.
+const COLS = ["id", "run_id", "kind", "records", "field", "value", "matched_on", "tier", "rationale", "decision", "status", "applied_at", "basis"];
+function upsert(found, rows, runId) {
+  const at = new Map(rows.map((r, i) => [r[0], i])), append = [], rewrite = [];
+  for (const p of found) {
+    const row = [p.id, runId, p.kind, p.records.join(","), p.field || "", p.value || "", p.matched_on || "", p.tier || "", "", "", "pending", "", p.basis];
+    if (!at.has(p.id)) { append.push(row); continue; }
+    const i = at.get(p.id), r = rows[i], status = r[10], was = r[12];
+    if (status === "stale_skipped" || (status === "rejected" && was !== p.basis)) rewrite.push({ range: `proposals!A${i + 2}:M${i + 2}`, values: [row] });
+  }
+  return { append, rewrite };
+}
+module.exports = { prep, make, duplicates, fills, stale, BASIS, objectOf, basis, upsert, COLS };

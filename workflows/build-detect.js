@@ -17,11 +17,12 @@ const found = [
   ...duplicates(contacts, R).map(d => ({ id: "merge:" + d.a + ":" + d.b, kind: "merge", records: [d.a, d.b], tier: d.tier, matched_on: d.matched_on })),
   ...fills(contacts, deals, companies, R), ...stale(deals, R, Date.now()),
 ];
-const have = new Set(($("Existing proposals").first().json.values || []).map(r => r[0]));
+const byId = new Map([...contacts, ...deals].map(o => [o.id, o]));
+for (const p of found) p.basis = basis(p.kind, p.records.map(id => byId.get(id)));
 const runId = "run-" + new Date().toISOString(), started = $("Run once").first().json.started || runId.slice(4);
-const rows = found.filter(p => !have.has(p.id)).map(p => [p.id, runId, p.kind, p.records.join(","), p.field || "", p.value || "", p.matched_on || "", p.tier || "", "", "", "pending"]);
+const { append, rewrite } = upsert(found, $("Existing proposals").first().json.values || [], runId);
 const n = k => found.filter(p => p.kind === k).length;
-return [{ json: { proposals: rows, run: [runId, started, new Date().toISOString(), contacts.length, deals.length, rows.length, found.filter(p => p.tier === "sure").length, found.filter(p => p.tier === "borderline").length, n("fill"), n("missing_task"), n("stale_task"), "ok"] } }];`;
+return [{ json: { proposals: append, rewrite, run: [runId, started, new Date().toISOString(), contacts.length, deals.length, append.length + rewrite.length, found.filter(p => p.tier === "sure").length, found.filter(p => p.tier === "borderline").length, n("fill"), n("missing_task"), n("stale_task"), "ok"] } }];`;
 const hs = (name, obj, props, assoc, y) => ({
   parameters: { url: `https://api.hubapi.com/crm/v3/objects/${obj}?limit=100&properties=${props}${assoc ? "&associations=" + assoc : ""}`, authentication: "predefinedCredentialType", nodeCredentialType: "hubspotAppToken",
     options: { pagination: { pagination: { paginationMode: "responseContainsNextURL", nextURL: "={{ $response.body.paging?.next?.link }}", paginationCompleteWhen: "other", completeExpression: "={{ !$response.body.paging?.next?.link }}", limitPagesFetched: false } } } },
@@ -37,11 +38,12 @@ const wf = {
     hs("Contacts", "contacts", "firstname,lastname,email,phone,company,jobtitle,lifecyclestage,hubspot_owner_id,createdate,demo_record", "companies", 200),
     hs("Deals", "deals", "dealname,dealstage,hubspot_owner_id,notes_last_updated,createdate", "contacts", 400),
     hs("Companies", "companies", "name", "", 600),
-    gs("Existing proposals", { url: SHEET + "proposals!A2:A" }, 800),
+    gs("Existing proposals", { url: SHEET + "proposals!A2:M" }, 800),
     { parameters: { jsCode: code }, name: "Detect", type: "n8n-nodes-base.code", typeVersion: 2, position: [1000, 0] },
     gs("Append proposals", post("proposals", "proposals"), 1200),
+    gs("Reopen proposals", { method: "POST", url: SHEET.replace(/\/values\/$/, "/values:batchUpdate"), sendBody: true, specifyBody: "json", jsonBody: `={{ JSON.stringify({ valueInputOption: "RAW", data: $('Detect').first().json.rewrite }) }}` }, 1300),
     gs("Append run_log", { ...post("run_log"), jsonBody: "={{ JSON.stringify({ values: [$('Detect').first().json.run] }) }}" }, 1400),
   ],
-  connections: Object.fromEntries([link("Run once", "Contacts"), link("Contacts", "Deals"), link("Deals", "Companies"), link("Companies", "Existing proposals"), link("Existing proposals", "Detect"), link("Detect", "Append proposals"), link("Append proposals", "Append run_log")]),
+  connections: Object.fromEntries([link("Run once", "Contacts"), link("Contacts", "Deals"), link("Deals", "Companies"), link("Companies", "Existing proposals"), link("Existing proposals", "Detect"), link("Detect", "Append proposals"), link("Append proposals", "Reopen proposals"), link("Reopen proposals", "Append run_log")]),
 };
 fs.writeFileSync(path.join(__dirname, "detect.json"), JSON.stringify(wf, null, 2) + "\n");

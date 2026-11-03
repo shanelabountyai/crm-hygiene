@@ -8,11 +8,12 @@ const link = (a, b) => [a, { main: [[{ node: b, type: "main", index: 0 }]] }];
 const pairs = `const rows = $("Proposals").first().json.values || [];
 const todo = rows.map((r, i) => ({ row: i + 2, id: r[0], kind: r[2], ids: (r[3] || "").split(","), matched_on: r[6], tier: r[7], rationale: r[8] })).filter(p => p.kind === "merge" && p.tier === "borderline" && !p.rationale);
 const ids = [...new Set(todo.flatMap(p => p.ids))];
-// ponytail: one HubSpot batch read holds 100 ids (50 pairs); chunk the read if a run ever has more.
-if (ids.length > 100) throw new Error("more than 100 contacts to read: chunk the batch read");
-return [{ json: { todo, inputs: ids.map(id => ({ id })) } }];`;
+// One HubSpot batch read holds 100 ids, so the read runs once per chunk.
+const out = [];
+for (let i = 0; i < ids.length; i += 100) out.push({ json: { todo, inputs: ids.slice(i, i + 100).map(id => ({ id })) } });
+return out;`;
 const prompts = `const { todo } = $("Pairs").first().json;
-const byId = Object.fromEntries($input.first().json.results.map(o => [o.id, o.properties]));
+const byId = Object.fromEntries($input.all().flatMap(i => i.json.results).map(o => [o.id, o.properties]));
 const show = id => JSON.stringify(Object.fromEntries(${JSON.stringify(PROPS)}.map(k => [k, byId[id]?.[k] ?? null])));
 return todo.filter(p => p.ids.every(id => byId[id])).map(p => ({ json: { ...p, prompt:
   "Two CRM contacts were flagged as a possible duplicate because they match on: " + p.matched_on + ".\\n\\nContact A (older): " + show(p.ids[0]) + "\\nContact B: " + show(p.ids[1]) +
@@ -32,7 +33,7 @@ const wf = {
     { parameters: { jsCode: pairs }, name: "Pairs", type: "n8n-nodes-base.code", typeVersion: 2, position: [400, 0] },
     { parameters: { method: "POST", url: "https://api.hubapi.com/crm/v3/objects/contacts/batch/read", authentication: "predefinedCredentialType", nodeCredentialType: "hubspotAppToken", sendBody: true, specifyBody: "json",
         jsonBody: `={{ JSON.stringify({ properties: ${JSON.stringify(PROPS)}, inputs: $json.inputs }) }}` },
-      name: "Contacts", type: "n8n-nodes-base.httpRequest", typeVersion: 4.2, position: [600, 0], executeOnce: true, credentials: { hubspotAppToken: { id: "u1WBi64R7zas6Zfn", name: "HubSpot Service Key account" } } },
+      name: "Contacts", type: "n8n-nodes-base.httpRequest", typeVersion: 4.2, position: [600, 0], credentials: { hubspotAppToken: { id: "u1WBi64R7zas6Zfn", name: "HubSpot Service Key account" } } },
     { parameters: { jsCode: prompts }, name: "Prompts", type: "n8n-nodes-base.code", typeVersion: 2, position: [800, 0] },
     { parameters: { method: "POST", url: "https://api.anthropic.com/v1/messages", authentication: "predefinedCredentialType", nodeCredentialType: "anthropicApi", sendHeaders: true,
         headerParameters: { parameters: [{ name: "anthropic-version", value: "2023-06-01" }] }, sendBody: true, specifyBody: "json",
