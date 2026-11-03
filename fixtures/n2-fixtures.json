@@ -2137,9 +2137,9 @@
       "same_person": true,
       "merge_case": "extra_email",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "T015",
@@ -2169,9 +2169,9 @@
       "same_person": true,
       "merge_case": "secondary_later_lifecycle",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "T017",
@@ -2206,9 +2206,9 @@
       "same_person": true,
       "merge_case": "secondary_later_lifecycle",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "T019",
@@ -2243,9 +2243,9 @@
       "same_person": true,
       "merge_case": "blank_filled_from_secondary",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "T021",
@@ -2276,9 +2276,9 @@
       "note": "Sure on phone and last name; primary keeps 'Robert'.",
       "merge_case": "conflict_primary_wins",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "T023",
@@ -2310,9 +2310,9 @@
       "same_person": true,
       "merge_case": "conflict_primary_wins",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "T025",
@@ -3313,11 +3313,10 @@
       "b": "T112",
       "same_person": false,
       "note": "Father and son on one home line; Jr. is not in the data. Same name here would be a sure phone+last-name match.",
-      "known_fail": "sure_rule_shared_phone",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": false
       }
     },
@@ -3328,11 +3327,10 @@
       "b": "T114",
       "same_person": false,
       "note": "Two unrelated Nguyens on one office line.",
-      "known_fail": "sure_rule_shared_phone",
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+company_domain+phone+company_name",
+        "model_called": true,
         "proposed": false
       }
     },
@@ -3374,9 +3372,9 @@
       "b": "H004",
       "same_person": true,
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "H003",
@@ -3436,9 +3434,9 @@
       "b": "H008",
       "same_person": true,
       "expected": {
-        "tier": "sure",
-        "matched_on": "phone_and_last_name",
-        "model_called": false,
+        "tier": "borderline",
+        "matched_on": "last_name+phone+company_name",
+        "model_called": true,
         "proposed": true,
         "merge": {
           "primary": "H007",
@@ -3869,7 +3867,7 @@
       "proposal_id": "merge:T015:T016",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T015",
         "T016"
@@ -3879,7 +3877,7 @@
       "proposal_id": "merge:T017:T018",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T017",
         "T018"
@@ -3889,7 +3887,7 @@
       "proposal_id": "merge:T019:T020",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T019",
         "T020"
@@ -3899,7 +3897,7 @@
       "proposal_id": "merge:T021:T022",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T021",
         "T022"
@@ -3909,7 +3907,7 @@
       "proposal_id": "merge:T023:T024",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T023",
         "T024"
@@ -3919,7 +3917,7 @@
       "proposal_id": "merge:T025:T026",
       "kind": "merge",
       "set": "tuned",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "T025",
         "T026"
@@ -4139,7 +4137,7 @@
       "proposal_id": "merge:H003:H004",
       "kind": "merge",
       "set": "holdout",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "H003",
         "H004"
@@ -4159,7 +4157,7 @@
       "proposal_id": "merge:H007:H008",
       "kind": "merge",
       "set": "holdout",
-      "tier": "sure",
+      "tier": "borderline",
       "records": [
         "H007",
         "H008"

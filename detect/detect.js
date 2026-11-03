@@ -20,7 +20,7 @@ function make(R) {
     const ea = nemail(a.email), eb = nemail(b.email), pa = nphone(a.phone), pb = nphone(b.phone);
     const sameLast = lc(a.lastname) === lc(b.lastname), samePhone = pa !== "" && pa === pb;
     if (ea === eb) return R.SHARED.has(ea.split("@")[0]) ? ["borderline", "shared_inbox"] : ["sure", "email"];
-    if (samePhone && sameLast) return ["sure", "phone_and_last_name"];
+    // Email is the only sure signal (Shane 2026-11-03): a shared phone can be a household or office line, so it is borderline and judged.
     if (sameLast || firstEq(a.firstname, b.firstname)) {
       const ev = [];
       if (domain(a) !== "" && domain(a) === domain(b)) ev.push("company_domain");
