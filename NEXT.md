@@ -6,9 +6,9 @@ Done 2026-11-02: N1 teardown, PRD Q1/Q2 answered, `fixtures/build.py` + `rules/*
 
 **Pick up here:**
 
-1. **Seed done 2026-11-03.** Portal holds 161 contacts (`demo_record=true`), 12 `[demo]` deals, 11 back-dated notes, company CO1 (Larkspur Analytics, 1 associated contact: M004, so contact->company type 1 works). The companies scope fix took effect once saved on key 55871605 (`labintelligence`). CO1 and M004 were added by a one-off run, so a clean re-seed is teardown then `workflows/seed.json`. `workflows/teardown.json` takes several minutes (3 passes, 20 s settles) and lacks tasks. Not yet checked in HubSpot: that each deal's `notes_last_updated` matches `idle_days` (do this at the start of item 3).
+1. **Seed done 2026-11-03.** Portal holds 161 contacts (`demo_record=true`), 12 `[demo]` deals, 11 back-dated notes, company CO1 (Larkspur Analytics, 1 associated contact: M004, so contact->company type 1 works). The companies scope fix took effect once saved on key 55871605 (`labintelligence`). CO1 and M004 were added by a one-off run, so a clean re-seed is teardown then `workflows/seed.json`. `workflows/teardown.json` takes several minutes (3 passes, 20 s settles) and lacks tasks. Checked 2026-11-03: all 12 deals' `notes_last_updated` match `idle_days` (seed time 19:17Z); D10 has none, as intended.
 2. (superseded: teardown is above)
-3. Three rule-only detectors (port `tier`/`blocks` from build.py; blocking includes company name), the `proposals` tab, and the run log.
+3. Rule-only detectors DONE (`detect/detect.js`, gate `node detect/check.js` green). Remaining: the n8n detect workflow, the `proposals` tab and the run log.
 
 Done 2026-11-02 (Shane decided): added the shared-phone case (father and son on one home line, two Nguyens on one office line) to `fixtures/build.py` as labelled not-duplicate pairs. This fails the gate on purpose until the sure rule also requires first name or email to match. Still to do: copy this decision into the PRD's Decisions section (artifact).
 
