@@ -6,7 +6,7 @@ N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KI
 
 ## Done this session
 - `workflows/nightly.json` (`n2Nightly0000001`, built by `build-nightly.js`): schedule 02:00 plus a manual trigger for CLI runs, then Apply, Detect, Judge as Execute Workflow nodes; `errorWorkflow: n1ErrorHandler01`. The three sub-workflows now start from an execute-workflow trigger (the CLI still runs them). Verified by CLI: all three steps succeed.
-- `scripts/eval.sh` (live, n8n stopped): offline gates, teardown, seed, sheet reset, nightly, dump (`dev-eval-dump.json`), `detect/score.js`. Result: **EVAL PASS**, 74 proposals, sure tier has zero wrong merges, borderline tuned TP 24 / FP 15 / FN 0, held-out TP 8 / FP 6 / FN 0, judge decided 32/39 tuned and 10/14 held-out (unsure counts as undecided). The FPs are the shared-phone pairs by design; the judge is what separates them.
+- `scripts/eval.sh` (live, n8n stopped): offline gates, teardown, seed, sheet reset, nightly, dump (`dev-eval-dump.json`), `detect/score.js`. Result: **EVAL PASS**, 74 proposals, sure tier has zero wrong merges, borderline tuned TP 24 / FP 15 / FN 0, held-out TP 8 / FP 6 / FN 0, judge right 32/39 tuned and 10/14 held-out, 0 likely_duplicate verdicts on different people. 2026-11-04: score.js now gates the revised PRD borderline targets (rules FN 0, judge 0 wrong-merge verdicts); the 90/85 targets were replaced, see PRD Decisions. The FPs are the shared-phone pairs by design; the judge is what separates them.
 - SETUP.md.
 
 ## Left

@@ -27,14 +27,16 @@ for (const id of liveIds) if (!want.has(id)) bad.push("unexpected proposal " + i
 const tierOf = new Map(live.filter(p => p.kind === "merge").map(p => [p.id, p]));
 const t = {}, sureWrong = [];
 for (const p of fx.pairs) {
-  const g = tierOf.get(`merge:${[p.a, p.b].sort().join(":")}`), e = p.expected.tier, s = t[p.set] ??= { tp: 0, fp: 0, fn: 0, judged: 0, judgeRight: 0 };
+  const g = tierOf.get(`merge:${[p.a, p.b].sort().join(":")}`), e = p.expected.tier, s = t[p.set] ??= { tp: 0, fp: 0, fn: 0, judged: 0, judgeRight: 0, judgeWrongMerge: 0 };
   if (g?.tier === "sure" && !p.same_person) sureWrong.push(p.case);
   if (e !== "borderline" || p.case.startsWith("known_miss")) continue;
   const hit = g?.tier === "borderline";
   if (hit && p.same_person) s.tp++; else if (hit) s.fp++; else if (p.same_person) s.fn++;
-  if (hit && g.rationale) { s.judged++; const v = g.rationale.split(":")[0]; if ((v === "likely_duplicate") === p.same_person && v !== "unsure") s.judgeRight++; }
+  if (hit && g.rationale) { s.judged++; const v = g.rationale.split(":")[0]; if ((v === "likely_duplicate") === p.same_person && v !== "unsure") s.judgeRight++; if (v === "likely_duplicate" && !p.same_person) s.judgeWrongMerge++; }
 }
-for (const [set, s] of Object.entries(t)) console.log(`${set.padEnd(8)} borderline TP ${s.tp} FP ${s.fp} FN ${s.fn} | judge decided ${s.judgeRight}/${s.judged} (unsure counts as not decided)`);
+for (const [set, s] of Object.entries(t)) console.log(`${set.padEnd(8)} borderline TP ${s.tp} FP ${s.fp} FN ${s.fn} | judge right ${s.judgeRight}/${s.judged}, said duplicate on different people ${s.judgeWrongMerge} (unsure counts as not right)`);
+// PRD targets (revised 2026-11-04): rules miss no borderline duplicate, the judge never calls two different people a duplicate, sure tier never merges different people.
+for (const [set, s] of Object.entries(t)) { if (s.fn) bad.push(`${set}: rules missed ${s.fn} borderline duplicates`); if (s.judgeWrongMerge) bad.push(`${set}: judge said duplicate on ${s.judgeWrongMerge} pairs of different people`); }
 console.log("sure-tier wrong merges:", sureWrong.length ? sureWrong.join(", ") : "none");
 if (sureWrong.length) bad.push("sure rule merged different people");
 console.log(bad.length ? "EVAL FAIL\n" + bad.join("\n") : "EVAL PASS: every fixture proposal present, none extra");
