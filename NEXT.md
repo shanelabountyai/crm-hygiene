@@ -1,6 +1,6 @@
 # Next
 
-**Capstone DONE 2026-11-03. Remaining: closure only.** PRD: https://claude.ai/artifact/BQBBTKvzCcAysjsWzFdTFg
+**PROJECT CLOSED 2026-11-04.** Nothing left to pick up. PRD: https://claude.ai/artifact/BQBBTKvzCcAysjsWzFdTFg
 
 N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KIvgQE7FtJsogRw/edit (tabs `proposals` A:M, `snapshots` A:F, `run_log` A:R).
 
@@ -12,14 +12,15 @@ N2 sheet: https://docs.google.com/spreadsheets/d/1vwwpyjgoN8xu1GPMPlgagbNIyd15KI
 ## Left
 1. **Error alert from a scheduled run: VERIFIED 2026-11-03.** A published every-minute throwaway with `errorWorkflow: n1ErrorHandler01` failed; the handler ran (success) and its "Alert owner" Gmail node executed (execution data). Mailbox receipt not checked. Throwaway deleted.
 2. **DEMO.md DONE, apply step verified by hand-accepted rows 2026-11-03** (2 merges applied, 1 rejected; portal now holds those 2 merges; fresh slate = `scripts/eval.sh`). The dropdown on column J had to be re-applied once (`n2DevSheetDrop001`); consider adding it to `scripts/eval.sh` after the sheet reset.
-3. **Closure** (CLAUDE.md): cost review DONE -> docs/COST_REVIEW.md (Anthropic spend per scan still unmeasured). Exec brief DONE 2026-11-03: **CRM Hygiene in Brief** https://claude.ai/artifact/HGD5yud5GTFUkPbrpaJBB6 (shared 2026-11-03). Remaining: LinkedIn posts in the Ledger (mine the Brennan sure-rule failure and the timestamp-vs-fingerprint stale check first).
+3. **Closure DONE 2026-11-04.** Cost review (docs/COST_REVIEW.md), exec brief (shared), DEMO.md, LinkedIn posts #160 (father-and-son sure rule, Impact) and #161 (what a HubSpot merge keeps, MarTech) queued in the Ledger.
 
 ## Artifacts
 - PRD: https://claude.ai/artifact/BQBBTKvzCcAysjsWzFdTFg
 - Exec brief: https://claude.ai/artifact/HGD5yud5GTFUkPbrpaJBB6
+- LinkedIn: Lab Intelligence Ledger https://claude.ai/artifact/Ai5xKScgT2sWtqXRQ1ZA8i posts #160, #161
 
 ## Portal state now
-Freshly seeded by eval.sh and scanned; the sheet holds 74 pending proposals with judge rationale; nothing applied.
+Seeded by eval.sh and scanned, then the DEMO apply step ran on hand-accepted rows: 2 merges applied, 1 rejected, the rest pending. `scripts/eval.sh` restores a fresh slate.
 
 ## Known limits (ponytail notes in code)
 - No accepted rows means apply writes no run_log row.
